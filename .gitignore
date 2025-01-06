@@ -1,1 +1,4 @@
 /target
+/libs
+/rust-analyzer-check
+Downloads/*

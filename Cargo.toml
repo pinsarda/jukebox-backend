@@ -4,3 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+youtube_dl = { version = "0.10.0", features = ["tokio"] }
+tokio = { version = "1", features = ["full"] }
+mini-redis = "0.4"
+actix-web = "4"
+serde = { version = "^1", features = ["derive"] }

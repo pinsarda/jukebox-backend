@@ -1,6 +1,6 @@
-use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{get, web, HttpResponse, Responder};
 use tokio::task;
-use crate::downloader::{ download_video };
+use crate::downloader::download_video;
 
 #[get("/test")]
 async fn hello() -> impl Responder {

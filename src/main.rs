@@ -1,7 +1,7 @@
 mod api;
 mod downloader;
 
-use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{ App, HttpServer };
 use api::routes::{ hello, download };
 
 #[actix_web::main]

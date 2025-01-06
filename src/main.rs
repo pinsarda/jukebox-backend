@@ -1,7 +1,13 @@
-use std::string;
+use tokio::task;
 
 use youtube_dl::YoutubeDl;
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
+
+pub async fn download_video(url: String) {
+    let output = YoutubeDl::new(url)
+    .socket_timeout("15")
+    .download_to("Downloads").expect("erreur lors du telechargement");
+}
 
 #[get("/test")]
 async fn hello() -> impl Responder {
@@ -11,12 +17,9 @@ async fn hello() -> impl Responder {
 #[get("/download/{id}")]
 async fn download(id: web::Path<String>) -> impl Responder {
     let url = "https://www.youtube.com/watch?v=".to_owned() + &id.into_inner();
-    let output = YoutubeDl::new(&url)
-    .socket_timeout("15")
-    .download_to("Downloads");
-    HttpResponse::Ok().body("Download successful !!!!")
+    task::spawn(download_video(url));
+    HttpResponse::Ok().body("Download started !!!!")
 }
-
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {

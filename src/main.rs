@@ -1,25 +1,8 @@
-use tokio::task;
+mod api;
+mod downloader;
 
-use youtube_dl::YoutubeDl;
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
-
-pub async fn download_video(url: String) {
-    let output = YoutubeDl::new(url)
-    .socket_timeout("15")
-    .download_to("Downloads").expect("erreur lors du telechargement");
-}
-
-#[get("/test")]
-async fn hello() -> impl Responder {
-    HttpResponse::Ok().body("aqqqq world!")
-}
-
-#[get("/download/{id}")]
-async fn download(id: web::Path<String>) -> impl Responder {
-    let url = "https://www.youtube.com/watch?v=".to_owned() + &id.into_inner();
-    task::spawn(download_video(url));
-    HttpResponse::Ok().body("Download started !!!!")
-}
+use api::routes::{ hello, download };
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {

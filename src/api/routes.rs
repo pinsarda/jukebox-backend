@@ -1,7 +1,7 @@
 use actix_web::{ HttpResponse, Responder};
 use tokio::task;
 use paperclip::actix::{ api_v2_operation, get, web::{ self, Json }};
-use crate::downloader::download_video;
+use crate::downloader::{download_video, play_audio};
 
 #[api_v2_operation]
 #[get("/helloworld")]
@@ -15,6 +15,9 @@ async fn hello() -> impl Responder {
 /// Downloads video with id id to the Downloads folder
 async fn download(id: web::Path<String>) -> impl Responder {
     let url = "https://www.youtube.com/watch?v=".to_owned() + &id.into_inner();
-    task::spawn(download_video(url));
+    task::spawn(async {
+        download_video(url).await;
+        play_audio("test.m4a".to_string()).await;
+    });
     HttpResponse::Ok().body("Download started !!!!")
 }

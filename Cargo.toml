@@ -10,3 +10,4 @@ mini-redis = "0.4"
 actix-web = "4"
 serde = { version = "^1", features = ["derive"] }
 paperclip = { version = "0.8", features = ["actix4"] }
+rodio = { version = "0.20.1", default-features = false, features = ["symphonia-all"] }

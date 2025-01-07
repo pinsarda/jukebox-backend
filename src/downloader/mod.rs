@@ -8,6 +8,7 @@ pub async fn download_video(url: String) {
     .format("m4a")
     .socket_timeout("15")
     .output_template("test.m4a")
+    .extra_arg("--no-part")
     .download_to("Downloads")
     .expect("erreur lors du telechargement");
 }

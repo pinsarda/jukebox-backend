@@ -3,6 +3,14 @@ use std::fs::File;
 use std::io::BufReader;
 use rodio::{Decoder, OutputStream, source::Source};
 
+pub async fn search(query: String) {
+
+}
+
+pub async fn fetch_video_metadata(url: String) {
+
+}
+
 pub async fn download_video(url: String) {
     YoutubeDl::new(url)
     .format("m4a")

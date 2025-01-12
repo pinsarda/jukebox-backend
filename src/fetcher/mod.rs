@@ -3,12 +3,19 @@ use std::fs::File;
 use std::io::BufReader;
 use rodio::{Decoder, OutputStream, source::Source};
 
+
+/// An user enters a `query` in the search bar, preferably a URL to a YouTube (Music) song
+/// 
+///  The method returns a ```models::YoutubeVideo``` instance.
 pub async fn search(query: String) {
 
 }
 
+/// **Input :** `url` - A YouTube (Music) URL to a song, I am not covering the case where the video is available on YT but not on YTM.
+/// 
+/// **Returns :** `models::Music` instance
 pub async fn fetch_video_metadata(url: String) {
-
+    
 }
 
 pub async fn download_video(url: String) {
@@ -18,7 +25,7 @@ pub async fn download_video(url: String) {
     .output_template("test.m4a")
     .extra_arg("--no-part")
     .download_to("Downloads")
-    .expect("erreur lors du telechargement");
+    .expect("Erreur lors du téléchargement");
 }
 
 pub async fn play_audio(filename: String) {

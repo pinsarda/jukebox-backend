@@ -11,3 +11,6 @@ actix-web = "4"
 serde = { version = "^1", features = ["derive"] }
 paperclip = { version = "0.8", features = ["actix4"] }
 rodio = { version = "0.20.1", default-features = false, features = ["symphonia-all"] }
+diesel = { version = "2.2.0", features = ["sqlite", "returning_clauses_for_sqlite_3_35"] }
+actix-session = { version = "0.10.1", features = ["cookie-session"] }
+dotenvy = "0.15"

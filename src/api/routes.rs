@@ -1,4 +1,4 @@
-use actix_web::{ HttpResponse, Responder};
+use actix_web::{ HttpResponse, Responder };
 use tokio::task;
 use paperclip::actix::{ api_v2_operation, get, web::{ self, Json }};
 use crate::fetcher::{download_video, play_audio};

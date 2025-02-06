@@ -2,8 +2,9 @@
 
 diesel::table! {
     users (id) {
-        id -> Int4,
-        username -> Varchar,
+        id -> Nullable<Integer>,
+        username -> Text,
+        password -> Text,
         userdata -> Text,
     }
 }

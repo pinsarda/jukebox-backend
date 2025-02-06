@@ -1,20 +1,48 @@
 mod api;
 mod fetcher;
+mod schema;
+mod models;
+mod db_handlers;
 
+use actix_web::web::Data;
 use actix_web::{ App, HttpServer, middleware::Logger };
 use paperclip::actix::OpenApiExt;
+use diesel::prelude::*;
+use diesel::r2d2::ConnectionManager;
+use diesel::r2d2::Pool;
 
 use api::{player::{ play, stop, next, previous, state }, routes::{ download, hello }};
+use api::user::signup;
+
+pub type DbPool = Pool<ConnectionManager<SqliteConnection>>;
+pub type DbConnection = SqliteConnection;
+
+
+pub fn get_connection_pool() -> DbPool {
+    let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    let manager = ConnectionManager::<DbConnection>::new(database_url);
+    Pool::builder()
+        .test_on_check_out(true)
+        .build(manager)
+        .expect("Could not build connection pool")
+}
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    HttpServer::new(|| {
+    dotenvy::dotenv().ok();
+
+    let pool = get_connection_pool();
+    
+    HttpServer::new(move || {
         App::new()
+            .app_data(Data::new(pool.clone()))
             .wrap(Logger::default())
             .wrap_api()
             // api routes (to be removed)
             .service(hello)
             .service(download)
+            // user managment
+            .service(signup)
             // player api
             .service(play)
             .service(stop)

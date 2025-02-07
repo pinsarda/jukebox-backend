@@ -3,8 +3,9 @@ mod fetcher;
 mod schema;
 mod models;
 mod db_handlers;
+mod identity;
 
-use actix_identity::{Identity, IdentityMiddleware};
+use actix_identity::IdentityMiddleware;
 use actix_session::{ SessionMiddleware, storage::CookieSessionStore };
 use actix_web::cookie::Key;
 use actix_web::web::Data;
@@ -15,7 +16,7 @@ use diesel::r2d2::ConnectionManager;
 use diesel::r2d2::Pool;
 
 use api::{player::{ play, stop, next, previous, state }, routes::{ download, hello }};
-use api::user::{ login, signup };
+use api::user::{ login, signup, get_info };
 
 pub type DbPool = Pool<ConnectionManager<SqliteConnection>>;
 pub type DbConnection = SqliteConnection;
@@ -53,6 +54,7 @@ async fn main() -> std::io::Result<()> {
             // user managment
             .service(signup)
             .service(login)
+            .service(get_info)
             // player api
             .service(play)
             .service(stop)

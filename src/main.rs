@@ -3,7 +3,11 @@ mod fetcher;
 mod schema;
 mod models;
 mod db_handlers;
+mod identity;
 
+use actix_identity::IdentityMiddleware;
+use actix_session::{ SessionMiddleware, storage::CookieSessionStore };
+use actix_web::cookie::Key;
 use actix_web::web::Data;
 use actix_web::{ App, HttpServer, middleware::Logger };
 use paperclip::actix::OpenApiExt;
@@ -12,7 +16,7 @@ use diesel::r2d2::ConnectionManager;
 use diesel::r2d2::Pool;
 
 use api::{player::{ play, stop, next, previous, state }, routes::{ download, hello }};
-use api::user::signup;
+use api::user::{ login, signup, get_info };
 
 pub type DbPool = Pool<ConnectionManager<SqliteConnection>>;
 pub type DbConnection = SqliteConnection;
@@ -32,10 +36,16 @@ async fn main() -> std::io::Result<()> {
     dotenvy::dotenv().ok();
 
     let pool = get_connection_pool();
-    
+    let secret_key = Key::generate();
+
     HttpServer::new(move || {
         App::new()
             .app_data(Data::new(pool.clone()))
+            .wrap(IdentityMiddleware::default())
+            .wrap(SessionMiddleware::new(
+                CookieSessionStore::default(),
+                secret_key.clone(),
+           ))
             .wrap(Logger::default())
             .wrap_api()
             // api routes (to be removed)
@@ -43,6 +53,8 @@ async fn main() -> std::io::Result<()> {
             .service(download)
             // user managment
             .service(signup)
+            .service(login)
+            .service(get_info)
             // player api
             .service(play)
             .service(stop)
@@ -50,6 +62,7 @@ async fn main() -> std::io::Result<()> {
             .service(previous)
             .service(state)
             .with_json_spec_at("/api/spec/v2")
+            .with_swagger_ui_at("/swagger")
             .build()
     })
     .bind(("127.0.0.1", 8080))?

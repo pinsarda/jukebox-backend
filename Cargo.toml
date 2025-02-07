@@ -8,6 +8,7 @@ youtube_dl = { version = "0.10.0", features = ["tokio"] }
 tokio = { version = "1", features = ["full"] }
 mini-redis = "0.4"
 actix-web = "4"
+actix-identity = "0.8.0"
 serde = { version = "^1", features = ["derive"] }
 paperclip = { version = "0.8", features = ["actix4"] }
 rodio = { version = "0.20.1", default-features = false, features = ["symphonia-all"] }

@@ -62,6 +62,7 @@ async fn main() -> std::io::Result<()> {
             .service(previous)
             .service(state)
             .with_json_spec_at("/api/spec/v2")
+            .with_swagger_ui_at("/swagger")
             .build()
     })
     .bind(("127.0.0.1", 8080))?

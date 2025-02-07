@@ -25,7 +25,7 @@ async fn get_info(id: UserIdentity, pool: Data<DbPool>, new_user: Json<NewUser>)
 
 #[api_v2_operation]
 #[post("/user/login")]
-// Login existing user
+/// Login existing user
 async fn login(pool: Data<DbPool>, request: HttpRequest, new_user: Json<NewUser>) -> Result<Json<User>, Error> {
 
     let conn = &mut pool.get().unwrap();

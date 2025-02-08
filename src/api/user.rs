@@ -20,7 +20,7 @@ async fn signup(pool: Data<DbPool>, new_user: Json<NewUser>) -> Result<Json<NewU
 #[post("/user/get_info")]
 /// Get user info
 async fn get_info(id: UserIdentity, pool: Data<DbPool>, new_user: Json<NewUser>) -> Result<String, Error> {
-    Ok(format!("Welcome! {}", id.0.id().unwrap()))
+    Ok(format!("Welcome! {}", id.id().unwrap()))
 }
 
 #[api_v2_operation]

@@ -1,6 +1,6 @@
 use actix_identity::Identity;
 use actix_web::{ web::Data, Error, HttpMessage, Result };
-use paperclip::actix::{ api_v2_operation, post, web::{ Json, HttpRequest } };
+use paperclip::actix::{ api_v2_operation, get, post, web::{ Json, HttpRequest } };
 use crate::models::user::{ NewUser, User, UserData };
 use crate::DbPool;
 use crate::db_handlers::user::{ create_user, get_user_data, get_user };
@@ -18,7 +18,7 @@ async fn signup(pool: Data<DbPool>, new_user: Json<NewUser>) -> Result<Json<NewU
 }
 
 #[api_v2_operation]
-#[post("/user/get_info")]
+#[get("/user/get_info")]
 /// Get user info
 async fn get_info(id: UserIdentity, pool: Data<DbPool>) -> Result<Json<UserData>, Error> {
 

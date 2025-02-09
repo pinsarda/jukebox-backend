@@ -1,6 +1,6 @@
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Queryable, Identifiable, Insertable)]
 pub struct YoutubeVideo {
-    pub id: String,
+    pub id: i32,
     pub url: String,
     pub title: String,
 }

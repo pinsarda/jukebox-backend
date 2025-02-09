@@ -17,13 +17,12 @@ CREATE TABLE musics (
   id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
   title VARCHAR NOT NULL,
   artists_ids TEXT NOT NULL,
-  album_id VARCHAR NOT NULL,
+  album_id INTEGER NOT NULL,
   youtube_id TEXT
 );
 
 CREATE TABLE artists (
   id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
   name VARCHAR NOT NULL,
-  description TEXT,
-  userdata TEXT NOT NULL
+  description TEXT
 );

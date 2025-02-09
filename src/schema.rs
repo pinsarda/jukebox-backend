@@ -15,7 +15,6 @@ diesel::table! {
         id -> Integer,
         name -> Text,
         description -> Nullable<Text>,
-        userdata -> Text,
     }
 }
 
@@ -24,7 +23,7 @@ diesel::table! {
         id -> Integer,
         title -> Text,
         artists_ids -> Text,
-        album_id -> Text,
+        album_id -> Integer,
         youtube_id -> Nullable<Text>,
     }
 }

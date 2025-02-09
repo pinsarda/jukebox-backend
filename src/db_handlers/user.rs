@@ -1,7 +1,7 @@
 use diesel::RunQueryDsl;
 use diesel::prelude::*;
 use diesel::result::Error;
-use crate::models::user::{ User, NewUser };
+use crate::models::user::{ User, NewUser, UserData };
 use crate::DbConnection;
 
 pub fn create_user(conn: &mut DbConnection, new_user: NewUser) -> Result<NewUser, Error> {
@@ -34,6 +34,23 @@ pub fn get_user_by_id(conn: &mut DbConnection, user_id: i32) -> Result<User, Err
     let user = users
         .find(user_id)
         .select(User::as_select())
+        .first(conn)
+        .optional();
+
+    match user {
+        Ok(Some(user)) => Ok(user),
+        Ok(None) => Err(Error::NotFound),
+        Err(_) => Err(Error::NotFound)
+    }
+    
+}
+
+pub fn get_user_data(conn: &mut DbConnection, user_id: i32) -> Result<UserData, Error> {
+    use crate::schema::users::dsl::users;
+
+    let user = users
+        .find(user_id)
+        .select(UserData::as_select())
         .first(conn)
         .optional();
 

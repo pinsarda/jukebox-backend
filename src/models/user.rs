@@ -12,6 +12,13 @@ pub struct User {
     pub userdata: String
 }
 
+#[derive(Debug, Serialize, Deserialize, Queryable, Selectable, Apiv2Schema)]
+#[diesel(table_name = users)]
+pub struct UserData {
+    pub username: String,
+    pub userdata: String
+}
+
 #[derive(Debug, Serialize, Deserialize, Insertable, Apiv2Schema)]
 #[diesel(table_name = users)]
 pub struct NewUser {

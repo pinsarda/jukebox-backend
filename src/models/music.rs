@@ -1,16 +1,50 @@
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Queryable, Identifiable, Insertable)]
+use crate::schema::*;
+use diesel::prelude::*;
+use paperclip::{actix::Apiv2Schema, v2::serde_json};
+use serde::{Serialize, Deserialize};
+
+#[derive(Debug, Serialize, Deserialize, Apiv2Schema)]
 pub struct YoutubeVideo {
-    pub id: String,
+    pub id: i32,
     pub url: String,
     pub title: String,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Queryable, Identifiable, Insertable)]
-pub struct Music {
-    pub id: String,
+#[derive(Debug, Serialize, Deserialize, Queryable, Selectable, Apiv2Schema)]
+#[diesel(table_name = albums)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct Album {
+    pub id: i32,
     pub title: String,
-    pub album: String,
-    pub production_date: NaiveDateTime,
-    pub artist: String,
-    pub has_lyrics: bool
+    pub artists_ids: Vec<Option<i32>>,
+    description: Option<String>
+}
+
+#[derive(Debug, Serialize, Deserialize, QueryableByName, Queryable, Selectable, Apiv2Schema)]
+#[diesel(table_name = musics)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct Music {
+    pub id: i32,
+    pub title: String,
+    pub artists_ids: Vec<Option<i32>>,
+    pub album_id: i32
+}
+
+#[derive(Debug, Serialize, Deserialize, Insertable, QueryableByName, Queryable, Selectable, Apiv2Schema)]
+#[diesel(table_name = musics)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct NewMusic {
+    pub title: String,
+    pub artists_ids: Vec<Option<i32>>,
+    pub album_id: i32
+}
+
+
+#[derive(Debug, Serialize, Deserialize, Queryable, Selectable, Apiv2Schema)]
+#[diesel(table_name = artists)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct Artist {
+    pub id: i32,
+    pub name: String,
+    description: Option<String>
 }

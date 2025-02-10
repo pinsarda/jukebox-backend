@@ -1,5 +1,6 @@
 use std::future::ready;
 use std::future::Ready;
+use actix_identity::error::GetIdentityError;
 use actix_identity::Identity;
 use paperclip::v2::schema::Apiv2Schema;
 use paperclip::actix::OperationModifier;
@@ -11,6 +12,13 @@ use actix_web::{ FromRequest, Error, HttpResponse };
 pub struct UserIdentity(pub actix_identity::Identity);
 impl Apiv2Schema for UserIdentity {}
 impl OperationModifier for UserIdentity {}
+
+impl UserIdentity {
+    pub fn id(&self) -> Result<String, GetIdentityError> {
+        self.0.id()
+    }
+}
+
 impl FromRequest for UserIdentity {
     type Error = Error;
     type Future = Ready<Result<Self, Self::Error>>;

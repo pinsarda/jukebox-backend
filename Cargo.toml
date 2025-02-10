@@ -12,6 +12,6 @@ actix-identity = "0.8.0"
 serde = { version = "^1", features = ["derive"] }
 paperclip = { version = "0.9.4", features = ["actix4", "swagger-ui"] }
 rodio = { version = "0.20.1", default-features = false, features = ["symphonia-all"] }
-diesel = { version = "2.2.0", features = ["sqlite", "r2d2", "returning_clauses_for_sqlite_3_35"] }
+diesel = { version = "2.2.0", features = ["postgres", "r2d2"] }
 actix-session = { version = "0.10.1", features = ["cookie-session"] }
 dotenvy = "0.15"

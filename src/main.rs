@@ -10,6 +10,7 @@ use actix_session::{ SessionMiddleware, storage::CookieSessionStore };
 use actix_web::cookie::Key;
 use actix_web::web::Data;
 use actix_web::{ App, HttpServer, middleware::Logger };
+use api::music::{self, add_music};
 use paperclip::actix::OpenApiExt;
 use diesel::prelude::*;
 use diesel::r2d2::ConnectionManager;
@@ -18,8 +19,8 @@ use diesel::r2d2::Pool;
 use api::{player::{ play, stop, next, previous, state }, routes::{ download, hello }};
 use api::user::{ login, signup, get_info };
 
-pub type DbPool = Pool<ConnectionManager<SqliteConnection>>;
-pub type DbConnection = SqliteConnection;
+pub type DbPool = Pool<ConnectionManager<PgConnection>>;
+pub type DbConnection = PgConnection;
 
 
 pub fn get_connection_pool() -> DbPool {
@@ -55,6 +56,9 @@ async fn main() -> std::io::Result<()> {
             .service(signup)
             .service(login)
             .service(get_info)
+            // music managment
+            .service(music::metadata)
+            .service(add_music)
             // player api
             .service(play)
             .service(stop)

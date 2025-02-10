@@ -10,6 +10,7 @@ use actix_session::{ SessionMiddleware, storage::CookieSessionStore };
 use actix_web::cookie::Key;
 use actix_web::web::Data;
 use actix_web::{ App, HttpServer, middleware::Logger };
+use api::music::{self, add_music};
 use paperclip::actix::OpenApiExt;
 use diesel::prelude::*;
 use diesel::r2d2::ConnectionManager;
@@ -55,6 +56,9 @@ async fn main() -> std::io::Result<()> {
             .service(signup)
             .service(login)
             .service(get_info)
+            // music managment
+            .service(music::metadata)
+            .service(add_music)
             // player api
             .service(play)
             .service(stop)

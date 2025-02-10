@@ -8,7 +8,7 @@ CREATE TABLE users (
 CREATE TABLE albums (
   id SERIAL PRIMARY KEY,
   title VARCHAR NOT NULL,
-  artists_ids TEXT NOT NULL,
+  artists_ids INTEGER[] NOT NULL,
   description TEXT,
   youtube_id TEXT
 );
@@ -16,7 +16,7 @@ CREATE TABLE albums (
 CREATE TABLE musics (
   id SERIAL PRIMARY KEY,
   title VARCHAR NOT NULL,
-  artists_ids TEXT NOT NULL,
+  artists_ids INTEGER[] NOT NULL,
   album_id INTEGER NOT NULL,
   youtube_id TEXT
 );

@@ -12,26 +12,39 @@ pub struct YoutubeVideo {
 
 #[derive(Debug, Serialize, Deserialize, Queryable, Selectable, Apiv2Schema)]
 #[diesel(table_name = albums)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Album {
     pub id: i32,
     pub title: String,
-    pub artists_ids: String,
-    description: String
+    pub artists_ids: Vec<Option<i32>>,
+    description: Option<String>
 }
 
 #[derive(Debug, Serialize, Deserialize, QueryableByName, Queryable, Selectable, Apiv2Schema)]
 #[diesel(table_name = musics)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Music {
     pub id: i32,
     pub title: String,
-    pub artists_ids: String,
+    pub artists_ids: Vec<Option<i32>>,
     pub album_id: i32
 }
 
+#[derive(Debug, Serialize, Deserialize, Insertable, QueryableByName, Queryable, Selectable, Apiv2Schema)]
+#[diesel(table_name = musics)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct NewMusic {
+    pub title: String,
+    pub artists_ids: Vec<Option<i32>>,
+    pub album_id: i32
+}
+
+
 #[derive(Debug, Serialize, Deserialize, Queryable, Selectable, Apiv2Schema)]
 #[diesel(table_name = artists)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Artist {
     pub id: i32,
     pub name: String,
-    description: String
+    description: Option<String>
 }

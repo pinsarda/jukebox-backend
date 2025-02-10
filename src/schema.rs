@@ -2,8 +2,8 @@
 
 diesel::table! {
     albums (id) {
-        id -> Integer,
-        title -> Text,
+        id -> Int4,
+        title -> Varchar,
         artists_ids -> Text,
         description -> Nullable<Text>,
         youtube_id -> Nullable<Text>,
@@ -12,27 +12,27 @@ diesel::table! {
 
 diesel::table! {
     artists (id) {
-        id -> Integer,
-        name -> Text,
+        id -> Int4,
+        name -> Varchar,
         description -> Nullable<Text>,
     }
 }
 
 diesel::table! {
     musics (id) {
-        id -> Integer,
-        title -> Text,
+        id -> Int4,
+        title -> Varchar,
         artists_ids -> Text,
-        album_id -> Integer,
+        album_id -> Int4,
         youtube_id -> Nullable<Text>,
     }
 }
 
 diesel::table! {
     users (id) {
-        id -> Integer,
-        username -> Text,
-        password -> Text,
+        id -> Int4,
+        username -> Varchar,
+        password -> Varchar,
         userdata -> Text,
     }
 }

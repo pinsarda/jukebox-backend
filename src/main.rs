@@ -18,8 +18,8 @@ use diesel::r2d2::Pool;
 use api::{player::{ play, stop, next, previous, state }, routes::{ download, hello }};
 use api::user::{ login, signup, get_info };
 
-pub type DbPool = Pool<ConnectionManager<SqliteConnection>>;
-pub type DbConnection = SqliteConnection;
+pub type DbPool = Pool<ConnectionManager<PgConnection>>;
+pub type DbConnection = PgConnection;
 
 
 pub fn get_connection_pool() -> DbPool {

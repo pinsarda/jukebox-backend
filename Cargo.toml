@@ -3,6 +3,10 @@ name = "jukebox"
 version = "0.1.0"
 edition = "2021"
 
+[[bin]]
+name = "jukebox"
+path = "src/main.rs"
+
 [dependencies]
 youtube_dl = { version = "0.10.0", features = ["tokio"] }
 tokio = { version = "1", features = ["full"] }

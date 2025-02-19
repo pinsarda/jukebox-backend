@@ -17,5 +17,6 @@ serde = { version = "^1", features = ["derive"] }
 paperclip = { version = "0.9.4", features = ["actix4", "swagger-ui"] }
 rodio = { version = "0.20.1", default-features = false, features = ["symphonia-all"] }
 diesel = { version = "2.2.0", features = ["postgres", "r2d2"] }
+diesel_migrations =  { version = "2.2.0", features = ["postgres"] }
 actix-session = { version = "0.10.1", features = ["cookie-session"] }
 dotenvy = "0.15"

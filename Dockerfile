@@ -3,6 +3,7 @@ WORKDIR /jukebox
 COPY Cargo.toml Cargo.lock ./
 RUN cargo fetch
 COPY src/ src/
+COPY migrations/ migrations/
 RUN apt update
 RUN apt install -y libasound2-dev
 

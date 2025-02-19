@@ -1,23 +1,30 @@
 use diesel::RunQueryDsl;
 use diesel::prelude::*;
 use diesel::result::Error;
-use crate::models::music::{ Music, NewMusic, Album };
+use crate::models::music::{ Music, NewMusic, Album, MusicResult };
 use crate::DbConnection;
 
-pub fn get_music_by_id(conn: &mut DbConnection, music_id: i32) -> Result<Music, Error> {
-    use crate::schema::musics::dsl::musics;
+pub fn get_music_by_id(conn: &mut DbConnection, music_id: i32, user_id: i32) -> Result<MusicResult, Error> {
+    use crate::schema::musics;
+    use crate::schema::albums;
 
-    let music = musics
-        .find(music_id)
-        .select(Music::as_select())
-        .first(conn)
-        .optional();
+    let result = musics::table
+        .inner_join(albums::table)
+        .filter(musics::id.eq(music_id))
+        .select((Music::as_select(), albums::title))
+        .first::<(Music, String)>(conn)?;
 
-    match music {
-        Ok(Some(music)) => Ok(music),
-        Ok(None) => Err(Error::NotFound),
-        Err(_) => Err(Error::NotFound)
-    }
+    let (music, album_title) = result;
+
+    let music_result = MusicResult {
+        id: music.id,
+        album_id: music.album_id,
+        title: music.title,
+        artists_ids: music.artists_ids,
+        album_title: album_title
+    };
+
+    Ok(music_result)
     
 }
 

@@ -18,7 +18,9 @@ CREATE TABLE musics (
   title VARCHAR NOT NULL,
   artists_ids INTEGER[] NOT NULL,
   album_id INTEGER NOT NULL,
-  youtube_id TEXT
+  youtube_id TEXT,
+
+  FOREIGN KEY (album_id) REFERENCES albums(id)
 );
 
 CREATE TABLE artists (

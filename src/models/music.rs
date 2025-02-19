@@ -1,5 +1,5 @@
 use crate::schema::*;
-use diesel::prelude::*;
+use diesel::{prelude::*, sql_types::Bool};
 use paperclip::{actix::Apiv2Schema, v2::serde_json};
 use serde::{Serialize, Deserialize};
 
@@ -10,7 +10,7 @@ pub struct YoutubeVideo {
     pub title: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, Selectable, Apiv2Schema)]
+#[derive(Debug, Serialize, Deserialize, Identifiable, Queryable, Selectable, Apiv2Schema)]
 #[diesel(table_name = albums)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Album {
@@ -20,7 +20,7 @@ pub struct Album {
     description: Option<String>
 }
 
-#[derive(Debug, Serialize, Deserialize, QueryableByName, Queryable, Selectable, Apiv2Schema)]
+#[derive(Debug, Serialize, Deserialize, Identifiable, QueryableByName, Queryable, Selectable, Apiv2Schema)]
 #[diesel(table_name = musics)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Music {
@@ -37,6 +37,15 @@ pub struct NewMusic {
     pub title: String,
     pub artists_ids: Vec<Option<i32>>,
     pub album_id: i32
+}
+
+#[derive(Debug, Serialize, Deserialize, Apiv2Schema)]
+pub struct MusicResult {
+    pub id: i32,
+    pub title: String,
+    pub artists_ids: Vec<Option<i32>>,
+    pub album_id: i32,
+    pub album_title: String
 }
 
 

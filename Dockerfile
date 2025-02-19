@@ -14,7 +14,7 @@ WORKDIR /jukebox
 
 RUN apt update
 RUN apt install -y libasound2 libpq5
-
+EXPOSE 8080
 COPY --from=builder /jukebox/target/release/jukebox/ /jukebox
 
 ENTRYPOINT [ "/jukebox/jukebox" ]

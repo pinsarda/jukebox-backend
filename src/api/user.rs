@@ -1,6 +1,6 @@
 use actix_identity::Identity;
 use actix_web::web::Json;
-use actix_web::HttpRequest;
+use actix_web::{HttpRequest, HttpResponse, Responder, http::StatusCode};
 use actix_web::{ web::Data, Error, HttpMessage, Result, post, get };
 use crate::models::user::{ NewUser, User, UserData };
 use crate::DbPool;
@@ -9,15 +9,24 @@ use crate::identity::UserIdentity;
 use utoipa_actix_web::{scope, AppExt};
 
 
-#[utoipa::path()]
+#[utoipa::path(
+    responses(
+        (status = 200, description = "User created succesfully"),
+        (status = 400, description = "Username already exists")
+    ),
+)]
 #[post("/user/signup")]
 /// Signup a new user
-async fn signup(pool: Data<DbPool>, new_user: Json<NewUser>) -> Result<Json<NewUser>, Error> {
+async fn signup(pool: Data<DbPool>, new_user: Json<NewUser>) -> impl Responder {
 
     let conn = &mut pool.get().unwrap();
-    let result = create_user(conn, new_user.into_inner()).unwrap();
+    let result = create_user(conn, new_user.into_inner());
     
-    Ok(Json(result))
+    match result {
+        Ok(size) => HttpResponse::build(StatusCode::OK).json("User created succesfully"),
+        Err(e) => HttpResponse::build(StatusCode::BAD_REQUEST).json("Username already exists"),
+    }
+    
 }
 
 #[utoipa::path()]

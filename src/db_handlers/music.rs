@@ -3,6 +3,7 @@ use diesel::prelude::*;
 use diesel::result::Error;
 use crate::models::music::{ Music, NewMusic, Album, MusicResult };
 use crate::DbConnection;
+use crate::db_handlers::user::get_user_by_id;
 
 pub fn get_music_by_id(conn: &mut DbConnection, music_id: i32, user_id: i32) -> Result<MusicResult, Error> {
     use crate::schema::musics;
@@ -16,12 +17,15 @@ pub fn get_music_by_id(conn: &mut DbConnection, music_id: i32, user_id: i32) -> 
 
     let (music, album_title) = result;
 
+    let user = get_user_by_id(conn, user_id).expect("Error while getting user data");
+
     let music_result = MusicResult {
         id: music.id,
         title: music.title,
         artists_ids: music.artists_ids,
         album_id: music.album_id,
-        album_title: album_title
+        album_title: album_title,
+        is_favorited: user.favorite_musics.contains(&music_id)
     };
 
     Ok(music_result)

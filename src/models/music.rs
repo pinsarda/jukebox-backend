@@ -45,7 +45,8 @@ pub struct MusicResult {
     pub title: String,
     pub artists_ids: Vec<i32>,
     pub album_id: i32,
-    pub album_title: String
+    pub album_title: String,
+    pub is_favorited: bool
 }
 
 

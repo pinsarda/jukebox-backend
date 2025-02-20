@@ -12,7 +12,6 @@ use actix_session::{ SessionMiddleware, storage::CookieSessionStore };
 use actix_web::cookie::Key;
 use actix_web::web::Data;
 use actix_web::{ App, HttpServer, middleware::Logger };
-use api::music::{self, add_music};
 use diesel::pg::Pg;
 use paperclip::actix::OpenApiExt;
 use diesel::prelude::*;
@@ -22,6 +21,8 @@ use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 
 use api::{player::{ play, stop, next, previous, state }, routes::{ download, hello }};
 use api::user::{ login, signup, get_info };
+use api::music::{self, add_music};
+use api::album::{self, add_album};
 
 pub type DbPool = Pool<ConnectionManager<PgConnection>>;
 pub type DbConnection = PgConnection;
@@ -71,9 +72,11 @@ async fn main() -> std::io::Result<()> {
             .service(signup)
             .service(login)
             .service(get_info)
-            // music managment
+            // music, album and artists managment
             .service(music::metadata)
             .service(add_music)
+            .service(album::metadata)
+            .service(add_album)
             // player api
             .service(play)
             .service(stop)

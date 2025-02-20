@@ -1,5 +1,6 @@
 pub mod user;
 pub mod music;
+pub mod album;
 
 use paperclip::actix::Apiv2Schema;
 use serde::{Serialize, Deserialize};

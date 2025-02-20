@@ -1,7 +1,7 @@
 use diesel::RunQueryDsl;
 use diesel::prelude::*;
 use diesel::result::Error;
-use crate::models::music::{ Music, NewMusic, Album, MusicResult };
+use crate::models::music::{ Music, NewMusic, MusicResult };
 use crate::DbConnection;
 use crate::db_handlers::user::get_user_by_id;
 
@@ -41,4 +41,3 @@ pub fn add_music(conn: &mut DbConnection, new_music: NewMusic) -> Result<NewMusi
         .expect("Database error when inserting user");
     return Ok(new_music);
 }
-

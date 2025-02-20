@@ -1,6 +1,7 @@
 use crate::schema::*;
 use diesel::{prelude::*, sql_types::Bool};
 use serde::{Serialize, Deserialize};
+use utoipa::ToSchema;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct YoutubeVideo {
@@ -9,7 +10,7 @@ pub struct YoutubeVideo {
     pub title: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Identifiable, QueryableByName, Queryable, Selectable)]
+#[derive(Debug, Serialize, Deserialize, Identifiable, QueryableByName, Queryable, Selectable, ToSchema)]
 #[diesel(table_name = musics)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Music {
@@ -19,7 +20,7 @@ pub struct Music {
     pub album_id: i32
 }
 
-#[derive(Debug, Serialize, Deserialize, Insertable, QueryableByName, Queryable, Selectable)]
+#[derive(Debug, Serialize, Deserialize, Insertable, QueryableByName, Queryable, Selectable, ToSchema)]
 #[diesel(table_name = musics)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct NewMusic {
@@ -28,7 +29,7 @@ pub struct NewMusic {
     pub album_id: i32
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct MusicResult {
     pub id: i32,
     pub title: String,

@@ -1,8 +1,9 @@
 use crate::schema::*;
 use diesel::prelude::*;
 use serde::{Serialize, Deserialize};
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, Queryable, Selectable)]
+#[derive(Debug, Serialize, Deserialize, Queryable, Selectable, ToSchema)]
 #[diesel(table_name = users)]
 pub struct User {
     pub id: i32,
@@ -14,13 +15,13 @@ pub struct User {
     pub playlists_library: Vec<i32>
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, Selectable)]
+#[derive(Debug, Serialize, Deserialize, Queryable, Selectable, ToSchema)]
 #[diesel(table_name = users)]
 pub struct UserData {
     pub username: String
 }
 
-#[derive(Debug, Serialize, Deserialize, Insertable)]
+#[derive(Debug, Serialize, Deserialize, Insertable, ToSchema)]
 #[diesel(table_name = users)]
 pub struct NewUser {
     pub username: String,

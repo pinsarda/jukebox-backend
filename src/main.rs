@@ -23,6 +23,8 @@ use api::user::{ login, signup, get_info };
 use api::music::{self, add_music};
 use api::album::{self, add_album};
 use api::artist::{self, add_artist};
+use utoipa_actix_web::AppExt;
+use utoipa_swagger_ui::SwaggerUi;
 
 pub type DbPool = Pool<ConnectionManager<PgConnection>>;
 pub type DbConnection = PgConnection;
@@ -64,6 +66,7 @@ async fn main() -> std::io::Result<()> {
                 secret_key.clone(),
            ))
             .wrap(Logger::default())
+            .into_utoipa_app()
             // api routes (to be removed)
             .service(hello)
             .service(download)
@@ -84,6 +87,10 @@ async fn main() -> std::io::Result<()> {
             .service(next)
             .service(previous)
             .service(state)
+            .openapi_service(|api| {
+                SwaggerUi::new("/swagger-ui/{_:.*}").url("/api/openapi.json", api)
+            })
+            .into_app()
     })
     .bind(("0.0.0.0", 8080))?
     .run()

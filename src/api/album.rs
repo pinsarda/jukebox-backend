@@ -5,6 +5,8 @@ use crate::DbPool;
 use crate::identity::UserIdentity;
 use crate::models::Id;
 
+
+#[utoipa::path()]
 #[get("/album/metadata")]
 /// Get an album metadata
 async fn metadata(id: UserIdentity, pool: Data<DbPool>, query_data: Json<Id>) -> Result<Json<AlbumResult>, Error> {
@@ -18,6 +20,7 @@ async fn metadata(id: UserIdentity, pool: Data<DbPool>, query_data: Json<Id>) ->
     Ok(Json(music.unwrap()))
 }
 
+#[utoipa::path()]
 #[post("/album/add")]
 /// Add an album to the database
 async fn add_album(_id: UserIdentity, pool: Data<DbPool>, new_album: Json<NewAlbum>) -> Result<Json<NewAlbum>, Error> {

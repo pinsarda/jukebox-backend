@@ -2,9 +2,10 @@ use crate::schema::*;
 use diesel::prelude::*;
 use serde::{Serialize, Deserialize};
 use crate::models::music::MusicResult;
+use utoipa::ToSchema;
 
 
-#[derive(Debug, Serialize, Deserialize, Identifiable, Queryable, Selectable)]
+#[derive(Debug, Serialize, Deserialize, Identifiable, Queryable, Selectable, ToSchema)]
 #[diesel(table_name = albums)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Album {
@@ -14,7 +15,7 @@ pub struct Album {
     pub description: Option<String>
 }
 
-#[derive(Debug, Serialize, Deserialize, Insertable, QueryableByName, Queryable, Selectable)]
+#[derive(Debug, Serialize, Deserialize, Insertable, QueryableByName, Queryable, Selectable, ToSchema)]
 #[diesel(table_name = albums)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct NewAlbum {
@@ -23,7 +24,7 @@ pub struct NewAlbum {
     pub description: Option<String>
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct AlbumResult {
     pub id: i32,
     pub title: String,

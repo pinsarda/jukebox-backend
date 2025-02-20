@@ -2,7 +2,10 @@ CREATE TABLE users (
   id SERIAL PRIMARY KEY,
   username VARCHAR NOT NULL,
   password VARCHAR NOT NULL,
-  userdata TEXT NOT NULL
+  favorite_musics INTEGER[] NOT NULL DEFAULT '{}',
+  favorite_albums INTEGER[] NOT NULL DEFAULT '{}',
+  favorite_artists INTEGER[] NOT NULL DEFAULT '{}',
+  playlists_library INTEGER[] NOT NULL DEFAULT '{}'
 );
 
 CREATE TABLE albums (

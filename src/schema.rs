@@ -28,12 +28,17 @@ diesel::table! {
     }
 }
 
+// Array<Nullable<Int4>> has to be modified to Array<Int4> manually
+// I couldn't find a better way to do this
 diesel::table! {
     users (id) {
         id -> Int4,
         username -> Varchar,
         password -> Varchar,
-        userdata -> Text,
+        favorite_musics -> Array<Int4>,
+        favorite_albums -> Array<Int4>,
+        favorite_artists -> Array<Int4>,
+        playlists_library -> Array<Int4>,
     }
 }
 

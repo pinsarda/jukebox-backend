@@ -23,6 +23,7 @@ use api::{player::{ play, stop, next, previous, state }, routes::{ download, hel
 use api::user::{ login, signup, get_info };
 use api::music::{self, add_music};
 use api::album::{self, add_album};
+use api::artist::{self, add_artist};
 
 pub type DbPool = Pool<ConnectionManager<PgConnection>>;
 pub type DbConnection = PgConnection;
@@ -77,6 +78,8 @@ async fn main() -> std::io::Result<()> {
             .service(add_music)
             .service(album::metadata)
             .service(add_album)
+            .service(artist::metadata)
+            .service(add_artist)
             // player api
             .service(play)
             .service(stop)

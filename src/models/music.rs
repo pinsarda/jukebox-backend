@@ -38,12 +38,3 @@ pub struct MusicResult {
     pub album_title: String,
     pub is_favorited: bool
 }
-
-#[derive(Debug, Serialize, Deserialize, Queryable, Selectable, Apiv2Schema)]
-#[diesel(table_name = artists)]
-#[diesel(check_for_backend(diesel::pg::Pg))]
-pub struct Artist {
-    pub id: i32,
-    pub name: String,
-    pub description: Option<String>
-}

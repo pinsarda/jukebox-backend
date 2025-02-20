@@ -1,9 +1,8 @@
 use crate::schema::*;
 use diesel::prelude::*;
-use paperclip::actix::Apiv2Schema;
 use serde::{Serialize, Deserialize};
 
-#[derive(Debug, Serialize, Deserialize, Queryable, Selectable, Apiv2Schema)]
+#[derive(Debug, Serialize, Deserialize, Queryable, Selectable)]
 #[diesel(table_name = users)]
 pub struct User {
     pub id: i32,
@@ -15,13 +14,13 @@ pub struct User {
     pub playlists_library: Vec<i32>
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, Selectable, Apiv2Schema)]
+#[derive(Debug, Serialize, Deserialize, Queryable, Selectable)]
 #[diesel(table_name = users)]
 pub struct UserData {
     pub username: String
 }
 
-#[derive(Debug, Serialize, Deserialize, Insertable, Apiv2Schema)]
+#[derive(Debug, Serialize, Deserialize, Insertable)]
 #[diesel(table_name = users)]
 pub struct NewUser {
     pub username: String,

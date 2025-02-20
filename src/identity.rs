@@ -2,16 +2,12 @@ use std::future::ready;
 use std::future::Ready;
 use actix_identity::error::GetIdentityError;
 use actix_identity::Identity;
-use paperclip::v2::schema::Apiv2Schema;
-use paperclip::actix::OperationModifier;
 use actix_web::{ FromRequest, Error, HttpResponse };
 
 // This struct is used as a wrapper around actix_identity::Identity
 // It allows implementation of Apiv2Schema and OperationModifier traits which are needed by paperclip documentation
 // It also allows greater flexibility when dealing with errors
 pub struct UserIdentity(pub actix_identity::Identity);
-impl Apiv2Schema for UserIdentity {}
-impl OperationModifier for UserIdentity {}
 
 impl UserIdentity {
     pub fn id(&self) -> Result<String, GetIdentityError> {

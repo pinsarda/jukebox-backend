@@ -3,10 +3,9 @@ pub mod music;
 pub mod album;
 pub mod artist;
 
-use paperclip::actix::Apiv2Schema;
 use serde::{Serialize, Deserialize};
 
-#[derive(Debug, Serialize, Deserialize, Apiv2Schema)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Id {
     pub id: i32
 }

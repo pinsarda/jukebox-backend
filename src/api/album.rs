@@ -1,12 +1,10 @@
-use actix_web::{ web::Data, Error, HttpMessage, Result };
+use actix_web::{ get, post, web::{Data, Json}, Error, HttpMessage, Result };
 use diesel::result;
-use paperclip::actix::{ api_v2_operation, get, post, web::{ Query, HttpRequest, Json } };
 use crate::{ db_handlers::album::get_album_by_id, models::{album::{Album, AlbumResult, NewAlbum}, user::{ NewUser, User, UserData }}};
 use crate::DbPool;
 use crate::identity::UserIdentity;
 use crate::models::Id;
 
-#[api_v2_operation]
 #[get("/album/metadata")]
 /// Get an album metadata
 async fn metadata(id: UserIdentity, pool: Data<DbPool>, query_data: Json<Id>) -> Result<Json<AlbumResult>, Error> {
@@ -20,7 +18,6 @@ async fn metadata(id: UserIdentity, pool: Data<DbPool>, query_data: Json<Id>) ->
     Ok(Json(music.unwrap()))
 }
 
-#[api_v2_operation]
 #[post("/album/add")]
 /// Add an album to the database
 async fn add_album(_id: UserIdentity, pool: Data<DbPool>, new_album: Json<NewAlbum>) -> Result<Json<NewAlbum>, Error> {

@@ -13,7 +13,6 @@ use actix_web::cookie::Key;
 use actix_web::web::Data;
 use actix_web::{ App, HttpServer, middleware::Logger };
 use diesel::pg::Pg;
-use paperclip::actix::OpenApiExt;
 use diesel::prelude::*;
 use diesel::r2d2::ConnectionManager;
 use diesel::r2d2::Pool;
@@ -65,7 +64,6 @@ async fn main() -> std::io::Result<()> {
                 secret_key.clone(),
            ))
             .wrap(Logger::default())
-            .wrap_api()
             // api routes (to be removed)
             .service(hello)
             .service(download)
@@ -86,9 +84,6 @@ async fn main() -> std::io::Result<()> {
             .service(next)
             .service(previous)
             .service(state)
-            .with_json_spec_at("/api/spec/v2")
-            .with_swagger_ui_at("/swagger")
-            .build()
     })
     .bind(("0.0.0.0", 8080))?
     .run()

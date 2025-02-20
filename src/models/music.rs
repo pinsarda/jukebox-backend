@@ -16,7 +16,7 @@ pub struct YoutubeVideo {
 pub struct Album {
     pub id: i32,
     pub title: String,
-    pub artists_ids: Vec<Option<i32>>,
+    pub artists_ids: Vec<i32>,
     description: Option<String>
 }
 
@@ -26,7 +26,7 @@ pub struct Album {
 pub struct Music {
     pub id: i32,
     pub title: String,
-    pub artists_ids: Vec<Option<i32>>,
+    pub artists_ids: Vec<i32>,
     pub album_id: i32
 }
 
@@ -35,7 +35,7 @@ pub struct Music {
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct NewMusic {
     pub title: String,
-    pub artists_ids: Vec<Option<i32>>,
+    pub artists_ids: Vec<i32>,
     pub album_id: i32
 }
 

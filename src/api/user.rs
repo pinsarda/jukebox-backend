@@ -5,7 +5,6 @@ use actix_web::{ web::Data, Error, HttpMessage, Result, post, get };
 use crate::models::user::{ NewUser, User, UserData };
 use crate::DbPool;
 use crate::db_handlers::user::{ create_user, get_user_data, get_user };
-use crate::identity::UserIdentity;
 use utoipa_actix_web::{scope, AppExt};
 
 
@@ -32,12 +31,12 @@ async fn signup(pool: Data<DbPool>, new_user: Json<NewUser>) -> impl Responder {
 #[utoipa::path()]
 #[get("/user/get_info")]
 /// Get user info
-async fn get_info(id: UserIdentity, pool: Data<DbPool>) -> Json<UserData> {
+async fn get_info(id: Identity, pool: Data<DbPool>) -> Result<Json<UserData>> {
 
     let conn = &mut pool.get().unwrap();
     let user_data = get_user_data(conn, id.id().unwrap().parse::<i32>().unwrap());
 
-    Json(user_data.unwrap())
+    Ok(Json(user_data.unwrap()))
 }
 
 #[utoipa::path()]

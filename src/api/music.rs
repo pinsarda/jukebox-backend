@@ -3,13 +3,12 @@ use actix_web::{ get, post, web::{Data, Json}, Error, Result };
 use diesel::result;
 use crate::{api::{music, user}, db_handlers::music::get_music_by_id, models::{music::{Music, MusicResult, NewMusic}, user::{ NewUser, User, UserData }}};
 use crate::DbPool;
-use crate::identity::UserIdentity;
 use crate::models::Id;
 
 #[utoipa::path()]
 #[get("/music/metadata")]
 /// Get music metadata
-async fn metadata(id: UserIdentity, pool: Data<DbPool>, query_data: Json<Id>) -> Result<Json<MusicResult>, Error> {
+async fn metadata(id: Identity, pool: Data<DbPool>, query_data: Json<Id>) -> Result<Json<MusicResult>, Error> {
 
     let conn = &mut pool.get().unwrap();
 
@@ -23,7 +22,7 @@ async fn metadata(id: UserIdentity, pool: Data<DbPool>, query_data: Json<Id>) ->
 #[utoipa::path()]
 #[post("/music/add")]
 /// Add a music to the database
-async fn add_music(_id: UserIdentity, pool: Data<DbPool>, new_music: Json<NewMusic>) -> Result<Json<NewMusic>, Error> {
+async fn add_music(_id: Identity, pool: Data<DbPool>, new_music: Json<NewMusic>) -> Result<Json<NewMusic>, Error> {
     use crate::schema::musics::dsl::musics;
 
     let conn = &mut pool.get().unwrap();

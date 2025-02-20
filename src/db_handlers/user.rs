@@ -4,14 +4,12 @@ use diesel::result::Error;
 use crate::models::user::{ User, NewUser, UserData };
 use crate::DbConnection;
 
-pub fn create_user(conn: &mut DbConnection, new_user: NewUser) -> Result<NewUser, Error> {
+pub fn create_user(conn: &mut DbConnection, new_user: NewUser) -> Result<usize, Error> {
     use crate::schema::users::dsl::*;
     
     diesel::insert_into(users)
         .values(&new_user)
         .execute(conn)
-        .expect("Database error when inserting user");
-    return Ok(new_user);
 }
 
 pub fn get_user(conn: &mut DbConnection, user_data: NewUser) -> Result<User, Error> {

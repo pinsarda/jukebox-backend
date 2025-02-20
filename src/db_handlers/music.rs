@@ -18,9 +18,9 @@ pub fn get_music_by_id(conn: &mut DbConnection, music_id: i32, user_id: i32) -> 
 
     let music_result = MusicResult {
         id: music.id,
-        album_id: music.album_id,
         title: music.title,
         artists_ids: music.artists_ids,
+        album_id: music.album_id,
         album_title: album_title
     };
 

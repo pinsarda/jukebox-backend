@@ -1,8 +1,10 @@
 use crate::schema::*;
 use diesel::prelude::*;
 use serde::{Serialize, Deserialize};
-use crate::models::music::MusicResult;
+use crate::models::music::Music;
 use utoipa::ToSchema;
+
+use super::music::RichMusic;
 
 
 #[derive(Debug, Serialize, Deserialize, Identifiable, Queryable, Selectable, ToSchema)]
@@ -25,10 +27,10 @@ pub struct NewAlbum {
 }
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-pub struct AlbumResult {
+pub struct RichAlbum {
     pub id: i32,
     pub title: String,
     pub artists_ids: Vec<i32>,
-    pub musics: Vec<MusicResult>,
+    pub musics: Vec<RichMusic>,
     pub is_favorited: bool
 }

@@ -2,6 +2,9 @@ use crate::schema::*;
 use diesel::{prelude::*, sql_types::Bool};
 use serde::{Serialize, Deserialize};
 use utoipa::ToSchema;
+use crate::models::album::Album;
+
+use super::artist::Artist;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct YoutubeVideo {
@@ -10,8 +13,9 @@ pub struct YoutubeVideo {
     pub title: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Identifiable, QueryableByName, Queryable, Selectable, ToSchema)]
+#[derive(Debug, Serialize, Deserialize, Identifiable, Associations, QueryableByName, Queryable, Selectable, ToSchema)]
 #[diesel(table_name = musics)]
+#[diesel(belongs_to(Album))]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Music {
     pub id: i32,
@@ -30,10 +34,10 @@ pub struct NewMusic {
 }
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-pub struct MusicResult {
+pub struct RichMusic {
     pub id: i32,
     pub title: String,
-    pub artists_ids: Vec<i32>,
+    pub artists: Vec<Artist>,
     pub album_id: i32,
     pub album_title: String,
     pub is_favorited: bool

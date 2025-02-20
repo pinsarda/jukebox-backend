@@ -1,6 +1,6 @@
 CREATE TABLE users (
   id SERIAL PRIMARY KEY,
-  username VARCHAR NOT NULL,
+  username VARCHAR NOT NULL UNIQUE,
   password VARCHAR NOT NULL,
   favorite_musics INTEGER[] NOT NULL DEFAULT '{}',
   favorite_albums INTEGER[] NOT NULL DEFAULT '{}',

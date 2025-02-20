@@ -43,7 +43,7 @@ pub struct NewMusic {
 pub struct MusicResult {
     pub id: i32,
     pub title: String,
-    pub artists_ids: Vec<Option<i32>>,
+    pub artists_ids: Vec<i32>,
     pub album_id: i32,
     pub album_title: String
 }

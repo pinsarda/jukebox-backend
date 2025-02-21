@@ -45,7 +45,12 @@ async fn login(pool: Data<DbPool>, request: HttpRequest, new_user: Json<NewUser>
     let new_user_password = new_user.password.clone();
 
     let conn = &mut pool.get().unwrap();
-    let user = get_user(conn, new_user.into_inner()).unwrap();
+    let user_result = get_user(conn, new_user.into_inner());
+
+    let user = match user_result {
+        Ok(user) => user,
+        Err(_) => return HttpResponse::build(StatusCode::BAD_REQUEST).json("User doesn't exist"),
+    }; 
 
     if verify_password(user.password, new_user_password).unwrap() {
         let user_id = user.id;

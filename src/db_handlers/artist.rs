@@ -5,7 +5,6 @@ use crate::models::artist::{ Artist, NewArtist, RichArtist };
 use crate::DbConnection;
 use crate::db_handlers::user::get_user_by_id;
 
-use super::user;
 
 pub fn get_artist_by_id(conn: &mut DbConnection, artist_id: i32) -> Result<Artist, Error> {
     use crate::schema::artists::dsl::artists;

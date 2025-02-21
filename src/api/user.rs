@@ -5,7 +5,6 @@ use actix_web::{ web::Data, Error, HttpMessage, Result, post, get };
 use crate::models::user::{ NewUser, User, UserData };
 use crate::DbPool;
 use crate::db_handlers::user::{ create_user, get_user_data, get_user };
-use utoipa_actix_web::{scope, AppExt};
 
 
 #[utoipa::path(

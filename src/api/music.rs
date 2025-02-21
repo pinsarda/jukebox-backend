@@ -1,7 +1,6 @@
 use actix_identity::Identity;
 use actix_web::{ get, post, web::{Data, Json}, Error, Result };
-use diesel::result;
-use crate::{api::{music, user}, db_handlers::music::{get_music_by_id, to_rich_music}, models::{music::{Music, RichMusic, NewMusic}, user::{ NewUser, User, UserData }}};
+use crate::{db_handlers::music::{get_music_by_id, to_rich_music}, models::music::{RichMusic, NewMusic}};
 use crate::DbPool;
 use crate::models::Id;
 
@@ -24,7 +23,7 @@ async fn metadata(id: Identity, pool: Data<DbPool>, query_data: Json<Id>) -> Res
 #[post("/music/add")]
 /// Add a music to the database
 async fn add_music(_id: Identity, pool: Data<DbPool>, new_music: Json<NewMusic>) -> Result<Json<NewMusic>, Error> {
-    use crate::schema::musics::dsl::musics;
+    
 
     let conn = &mut pool.get().unwrap();
 

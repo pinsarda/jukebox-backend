@@ -1,7 +1,6 @@
 use crate::schema::*;
 use diesel::prelude::*;
 use serde::{Serialize, Deserialize};
-use crate::models::album::Album;
 use utoipa::ToSchema;
 
 

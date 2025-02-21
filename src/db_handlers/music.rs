@@ -1,15 +1,12 @@
 use diesel::RunQueryDsl;
 use diesel::prelude::*;
 use diesel::result::Error;
-use crate::api::artist;
 use crate::db_handlers::artist::get_artists_by_ids;
 use crate::models::album::Album;
-use crate::models::artist::Artist;
 use crate::models::music::{ Music, NewMusic, RichMusic };
 use crate::DbConnection;
 use crate::db_handlers::user::get_user_by_id;
 
-use super::album;
 
 pub fn get_music_by_id(conn: &mut DbConnection, music_id: i32) -> Result<Music, Error> {
     use crate::schema::musics::dsl::musics;

@@ -1,10 +1,10 @@
 use crate::schema::*;
-use diesel::{prelude::*, sql_types::Bool};
+use diesel::prelude::*;
 use serde::{Serialize, Deserialize};
 use utoipa::ToSchema;
 use crate::models::album::Album;
 
-use super::artist::{Artist, RichArtist};
+use super::artist::RichArtist;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct YoutubeVideo {

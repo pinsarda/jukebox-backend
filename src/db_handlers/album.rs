@@ -3,13 +3,10 @@ use diesel::prelude::*;
 use diesel::result::Error;
 use crate::db_handlers::music::get_album_musics;
 use crate::models::album::{ Album, NewAlbum, RichAlbum };
-use crate::models::music::Music;
-use crate::models::music::RichMusic;
 use crate::DbConnection;
 use crate::db_handlers::user::get_user_by_id;
 use crate::db_handlers::artist::get_artists_by_ids;
 
-use super::music;
 
 pub fn get_album_by_id(conn: &mut DbConnection, album_id: i32) -> Result<Album, Error> {
     use crate::schema::albums::dsl::albums;

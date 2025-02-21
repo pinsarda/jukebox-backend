@@ -1,7 +1,6 @@
 use actix_identity::Identity;
-use actix_web::{ get, post, web::{Data, Json}, Error, HttpMessage, Result };
-use diesel::result;
-use crate::{ api::album, db_handlers::album::{get_album_by_id, to_rich_album}, models::{album::{Album, RichAlbum, NewAlbum}, user::{ NewUser, User, UserData }}};
+use actix_web::{ get, post, web::{Data, Json}, Error, Result };
+use crate::{ db_handlers::album::{get_album_by_id, to_rich_album}, models::album::{RichAlbum, NewAlbum}};
 use crate::DbPool;
 use crate::models::Id;
 

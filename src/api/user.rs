@@ -21,8 +21,8 @@ async fn signup(pool: Data<DbPool>, new_user: Json<NewUser>) -> impl Responder {
     let result = create_user(conn, new_user.into_inner());
     
     match result {
-        Ok(size) => HttpResponse::build(StatusCode::OK).json("User created succesfully"),
-        Err(e) => HttpResponse::build(StatusCode::BAD_REQUEST).json("Username already exists"),
+        Ok(_) => HttpResponse::build(StatusCode::OK).json("User created succesfully"),
+        Err(_) => HttpResponse::build(StatusCode::BAD_REQUEST).json("Username already exists"),
     }
     
 }

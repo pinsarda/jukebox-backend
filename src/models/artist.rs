@@ -23,9 +23,9 @@ pub struct NewArtist {
 }
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-pub struct ArtistResult {
+pub struct RichArtist {
     pub id: i32,
     pub name: String,
-    pub albums: Vec<Album>,
+    pub description: Option<String>,
     pub is_favorited: bool
 }

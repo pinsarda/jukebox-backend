@@ -4,7 +4,7 @@ use serde::{Serialize, Deserialize};
 use utoipa::ToSchema;
 use crate::models::album::Album;
 
-use super::artist::Artist;
+use super::artist::{Artist, RichArtist};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct YoutubeVideo {
@@ -37,7 +37,7 @@ pub struct NewMusic {
 pub struct RichMusic {
     pub id: i32,
     pub title: String,
-    pub artists: Vec<Artist>,
+    pub artists: Vec<RichArtist>,
     pub album_id: i32,
     pub album_title: String,
     pub is_favorited: bool

@@ -1,6 +1,8 @@
 use diesel::RunQueryDsl;
 use diesel::prelude::*;
 use diesel::result::Error;
+use crate::api::artist;
+use crate::db_handlers::artist::get_artists_by_ids;
 use crate::models::album::Album;
 use crate::models::artist::Artist;
 use crate::models::music::{ Music, NewMusic, RichMusic };
@@ -30,10 +32,12 @@ pub fn to_rich_music(conn: &mut DbConnection, music: Music, user_id: i32) -> Res
 
     let user = get_user_by_id(conn, user_id).expect("Error while getting user data");
 
+    let artists = get_artists_by_ids(conn, music.artists_ids, user_id).expect("Error while getting music artists");
+
     let music_result = RichMusic {
         id: music.id,
         title: music.title,
-        artists: vec![],
+        artists: artists,
         album_id: music.album_id,
         album_title: album.title,
         is_favorited: user.favorite_musics.contains(&music.id)

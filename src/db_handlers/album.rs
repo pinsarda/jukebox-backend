@@ -7,6 +7,9 @@ use crate::models::music::Music;
 use crate::models::music::RichMusic;
 use crate::DbConnection;
 use crate::db_handlers::user::get_user_by_id;
+use crate::db_handlers::artist::get_artists_by_ids;
+
+use super::music;
 
 pub fn get_album_by_id(conn: &mut DbConnection, album_id: i32) -> Result<Album, Error> {
     use crate::schema::albums::dsl::albums;
@@ -18,18 +21,20 @@ pub fn get_album_by_id(conn: &mut DbConnection, album_id: i32) -> Result<Album, 
         .expect("Error getting album_by_id");
 
     Ok(album)
-    
 }
 
 pub fn to_rich_album(conn: &mut DbConnection, album: Album, user_id: i32) -> Result<RichAlbum, Error> {
 
     let user = get_user_by_id(conn, user_id).expect("Error while getting user data");
 
+    let artists = get_artists_by_ids(conn, album.artists_ids.clone(), user_id).expect("Error while getting album artists");
+    let musics = get_album_musics(conn, &album, user_id).expect("Error while getting album musics");
+
     let album_result = RichAlbum {
         id: album.id,
-        title: album.title.clone(),
-        artists_ids: album.artists_ids.clone(),
-        musics: get_album_musics(conn, &album, user_id).expect(""),
+        title: album.title,
+        artists: artists,
+        musics: musics,
         is_favorited: user.favorite_albums.contains(&album.id)
     };
 

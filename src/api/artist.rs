@@ -1,7 +1,7 @@
 use actix_identity::Identity;
 use actix_web::{ get, post, web::{Data, Json}, Error, Result };
 use diesel::result;
-use crate::{ db_handlers::artist::get_artist_by_id, models::{artist::{Artist, ArtistResult, NewArtist}, user::{ NewUser, User, UserData }}};
+use crate::{ api::artist, db_handlers::artist::{get_artist_by_id, to_rich_artist}, models::{artist::{Artist, RichArtist, NewArtist}, user::{ NewUser, User, UserData }}};
 use crate::DbPool;
 use crate::models::Id;
 
@@ -9,15 +9,16 @@ use crate::models::Id;
 #[utoipa::path()]
 #[get("/artist/metadata")]
 /// Get an artist metadata
-async fn metadata(id: Identity, pool: Data<DbPool>, query_data: Json<Id>) -> Result<Json<ArtistResult>, Error> {
+async fn metadata(id: Identity, pool: Data<DbPool>, query_data: Json<Id>) -> Result<Json<RichArtist>, Error> {
 
     let conn = &mut pool.get().unwrap();
 
     let user_id = id.id().unwrap().parse::<i32>().unwrap();
 
-    let music = get_artist_by_id(conn, query_data.id, user_id);
+    let artist = get_artist_by_id(conn, query_data.id).unwrap();
+    let rich_artist = to_rich_artist(conn, artist, user_id);
 
-    Ok(Json(music.unwrap()))
+    Ok(Json(rich_artist.unwrap()))
 }
 
 #[utoipa::path()]

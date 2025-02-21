@@ -4,7 +4,7 @@ use actix_web::{HttpRequest, HttpResponse, Responder, http::StatusCode};
 use actix_web::{ web::Data, Error, HttpMessage, Result, post, get };
 use crate::models::user::{ NewUser, User, UserData };
 use crate::DbPool;
-use crate::db_handlers::user::{ create_user, get_user_data, get_user };
+use crate::db_handlers::user::{ self, create_user, get_user, get_user_data, verify_password };
 
 
 #[utoipa::path(
@@ -41,13 +41,17 @@ async fn get_info(id: Identity, pool: Data<DbPool>) -> Result<Json<UserData>> {
 #[utoipa::path()]
 #[post("/user/login")]
 /// Login existing user
-async fn login(pool: Data<DbPool>, request: HttpRequest, new_user: Json<NewUser>) -> Result<Json<User>, Error> {
+async fn login(pool: Data<DbPool>, request: HttpRequest, new_user: Json<NewUser>) -> impl Responder {
+    let new_user_password = new_user.password.clone();
 
     let conn = &mut pool.get().unwrap();
-    let user = get_user(conn, new_user.into_inner());
+    let user = get_user(conn, new_user.into_inner()).unwrap();
 
-    let user_id = user.as_ref().unwrap().id.clone();
-
-    Identity::login(&request.extensions(), user_id.to_string()).unwrap();
-    Ok(Json(user.unwrap()))
+    if verify_password(user.password, new_user_password).unwrap() {
+        let user_id = user.id;
+        Identity::login(&request.extensions(), user_id.to_string()).unwrap();
+        HttpResponse::build(StatusCode::OK).json("User authenticated succesfully")
+    } else {
+        HttpResponse::build(StatusCode::BAD_REQUEST).json("Wrong password")
+    }
 }

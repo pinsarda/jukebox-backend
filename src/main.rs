@@ -7,7 +7,9 @@ mod db_handlers;
 use std::error::Error;
 
 use actix_identity::IdentityMiddleware;
+use actix_session::config::{CookieContentSecurity, PersistentSession};
 use actix_session::{ SessionMiddleware, storage::CookieSessionStore };
+use actix_web::cookie::time::Duration;
 use actix_web::cookie::Key;
 use actix_web::web::Data;
 use actix_web::{ App, HttpServer, middleware::Logger };
@@ -59,11 +61,21 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .app_data(Data::new(pool.clone()))
-            .wrap(IdentityMiddleware::default())
-            .wrap(SessionMiddleware::new(
-                CookieSessionStore::default(),
-                secret_key.clone(),
-           ))
+            .wrap(IdentityMiddleware::builder()
+                .login_deadline(Some(std::time::Duration::from_secs(60 * 60 * 24 * 365)))
+                .build()
+            )
+            .wrap(
+                SessionMiddleware::builder(
+                    CookieSessionStore::default(),
+                    secret_key.clone(),
+                )
+                .session_lifecycle(
+                    PersistentSession::default().session_ttl(Duration::seconds(60 * 60 * 24 * 365))
+                )
+                .cookie_content_security(CookieContentSecurity::Private)
+                .build()
+            )
             .wrap(Logger::default())
             .into_utoipa_app()
             // api routes (to be removed)

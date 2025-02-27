@@ -3,16 +3,26 @@ name = "jukebox"
 version = "0.1.0"
 edition = "2021"
 
+[[bin]]
+name = "jukebox"
+path = "src/main.rs"
+
 [dependencies]
 youtube_dl = { version = "0.10.0", features = ["tokio"] }
 tokio = { version = "1", features = ["full"] }
 mini-redis = "0.4"
 actix-web = "4"
+actix-identity = "0.8.0"
 serde = { version = "^1", features = ["derive"] }
-paperclip = { version = "0.8", features = ["actix4"] }
+utoipa = { version = "5", features = ["actix_extras"] }
+utoipa-actix-web = "0.1"
+utoipa-swagger-ui = { version = "9", features = ["actix-web"] }
 rodio = { version = "0.20.1", default-features = false, features = ["symphonia-all"] }
-diesel = { version = "2.2.0", features = ["sqlite", "r2d2", "returning_clauses_for_sqlite_3_35"] }
+diesel = { version = "2.2.0", features = ["postgres", "r2d2"] }
+diesel_migrations =  { version = "2.2.0", features = ["postgres"] }
 actix-session = { version = "0.10.1", features = ["cookie-session"] }
 dotenvy = "0.15"
+rand = "0.7"
+rust-argon2 = "0.5"
 reqwest = { version = "0.12", features = ["json"] }
 dotenv = "0.15.0"

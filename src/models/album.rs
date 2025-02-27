@@ -2,43 +2,34 @@ use crate::schema::*;
 use diesel::prelude::*;
 use serde::{Serialize, Deserialize};
 use utoipa::ToSchema;
-use crate::models::album::Album;
 
-use super::artist::RichArtist;
+use super::{artist::RichArtist, music::RichMusic};
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct YoutubeVideo {
-    pub id: i32,
-    pub url: String,
-    pub title: String,
-}
 
-#[derive(Debug, Serialize, Deserialize, Identifiable, Associations, QueryableByName, Queryable, Selectable, ToSchema)]
-#[diesel(table_name = musics)]
-#[diesel(belongs_to(Album))]
+#[derive(Debug, Serialize, Deserialize, Identifiable, Queryable, Selectable, ToSchema)]
+#[diesel(table_name = albums)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
-pub struct Music {
+pub struct Album {
     pub id: i32,
     pub title: String,
     pub artists_ids: Vec<i32>,
-    pub album_id: i32
+    pub description: Option<String>
 }
 
 #[derive(Debug, Serialize, Deserialize, Insertable, QueryableByName, Queryable, Selectable, ToSchema)]
-#[diesel(table_name = musics)]
+#[diesel(table_name = albums)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
-pub struct NewMusic {
+pub struct NewAlbum {
     pub title: String,
     pub artists_ids: Vec<i32>,
-    pub album_id: i32
+    pub description: Option<String>
 }
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-pub struct RichMusic {
+pub struct RichAlbum {
     pub id: i32,
     pub title: String,
     pub artists: Vec<RichArtist>,
-    pub album_id: i32,
-    pub album_title: String,
+    pub musics: Vec<RichMusic>,
     pub is_favorited: bool
 }

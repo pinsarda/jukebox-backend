@@ -1,5 +1,5 @@
 use actix_identity::Identity;
-use actix_web::{ get, post, web::{Data, Json}, Error, Result };
+use actix_web::{ get, post, web::{Data, Json, Query}, Error, Result };
 use crate::{ db_handlers::album::{get_album_by_id, to_rich_album}, models::album::{RichAlbum, NewAlbum}};
 use crate::DbPool;
 use crate::models::Id;
@@ -8,7 +8,7 @@ use crate::models::Id;
 #[utoipa::path()]
 #[get("/album/metadata")]
 /// Get an album metadata
-async fn metadata(id: Identity, pool: Data<DbPool>, query_data: Json<Id>) -> Result<Json<RichAlbum>, Error> {
+async fn metadata(id: Identity, pool: Data<DbPool>, query_data: Query<Id>) -> Result<Json<RichAlbum>, Error> {
 
     let conn = &mut pool.get().unwrap();
 

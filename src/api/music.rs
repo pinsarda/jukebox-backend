@@ -1,5 +1,5 @@
 use actix_identity::Identity;
-use actix_web::{ get, post, web::{Data, Json}, Error, Result };
+use actix_web::{ get, post, web::{Data, Json, Query}, Error, Result };
 use crate::{db_handlers::music::{get_music_by_id, to_rich_music}, models::music::{RichMusic, NewMusic}};
 use crate::DbPool;
 use crate::models::Id;
@@ -7,7 +7,7 @@ use crate::models::Id;
 #[utoipa::path()]
 #[get("/music/metadata")]
 /// Get music metadata
-async fn metadata(id: Identity, pool: Data<DbPool>, query_data: Json<Id>) -> Result<Json<RichMusic>, Error> {
+async fn metadata(id: Identity, pool: Data<DbPool>, query_data: Query<Id>) -> Result<Json<RichMusic>, Error> {
 
     let conn = &mut pool.get().unwrap();
 

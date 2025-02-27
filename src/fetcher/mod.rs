@@ -6,60 +6,7 @@ use reqwest::{Client, ClientBuilder};
 use serde::{Serialize, Deserialize};
 use dotenv::dotenv;
 use std::env;
-use crate::models;
-
-// Je recopie ce code parce que je sais pas importer du code extérieur correctement, solution de fortune
-#[derive(Debug, Serialize, Deserialize)]
-pub struct YoutubeVideo {
-    pub id: i32,
-    pub url: String,
-    pub title: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-#[diesel(table_name = musics)]
-pub struct Music {
-    pub id: i32,
-    pub title: String,
-    pub artists_ids: String,
-    pub album_id: i32
-}
-
-// Apparemment je dois créer des structs custom pour faire ce que je veux faire, Copilot veut pas m'aider à utiliser les méthodes des crates
-
-#[derive(Deserialize)]
-struct Thumbnail {
-    url: String,
-}
-
-#[derive(Deserialize)]
-struct Snippet {
-    title: String,
-    thumbnails: Thumbnails,
-}
-
-#[derive(Deserialize)]
-struct Thumbnails {
-    high: Thumbnail,
-}
-
-#[derive(Deserialize)]
-struct Id {
-    videoId: String,
-}
-
-#[derive(Deserialize)]
-struct Item {
-    id: Id,
-    snippet: Snippet,
-}
-
-#[derive(Deserialize)]
-struct Response {
-    items: Vec<Item>,
-}
-
-// C'est moche mais en attendant de savoir utiliser les méthodes des crates je garde ça
+use crate::models::fetcher::{Music, Response, VideoResponse, YoutubeVideo};
 
 /// Takes a search query as input, and returns a Vec of ``YoutubeVideo``s if the search was successful, else an error.
 #[tokio::main]
@@ -80,7 +27,7 @@ pub async fn search(query: String) -> Result<Vec<YoutubeVideo>, reqwest::Error> 
   // Parse the Response struct's fields, can probably be implemented as its own method for readability
 
   for item in resp.items {
-    let video_id = item.id.videoId;
+    let video_id = item.id.video_id;
     let video_title = item.snippet.title;
     let video_url = format!("www.youtube.com/watch?v={}", video_id); // redundant info, TODO : change that
 
@@ -95,30 +42,6 @@ pub async fn search(query: String) -> Result<Vec<YoutubeVideo>, reqwest::Error> 
 
   Ok(videos)
 }
-
-// TODO : Beaucoup de structs dont l'écriture peut être évitée par une meilleure utilisation de serde
-#[derive(Deserialize)]
-struct VideoSnippet {
-    title: String,
-}
-
-#[derive(Deserialize)]
-struct VideoId {
-    videoId: String,
-}
-
-#[derive(Deserialize)]
-struct VideoItem {
-    id: VideoId,
-    snippet: VideoSnippet,
-}
-
-#[derive(Deserialize)]
-struct VideoResponse {
-    items: Vec<VideoItem>,
-}
-
-
 
 /// TODO : Properly implement the method because it's not working atm
 /// Takes a YouTube video URL as input (TODO : will tackle the YTM case later), and returns its metadata in the form of a Music struct instance.

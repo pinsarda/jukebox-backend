@@ -2,3 +2,4 @@
 /libs
 /rust-analyzer-check
 Downloads/*
+.env

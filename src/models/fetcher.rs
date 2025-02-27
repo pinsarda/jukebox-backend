@@ -17,34 +17,35 @@ pub struct Music {
 
 // Apparemment je dois créer des structs custom pour faire ce que je veux faire, Copilot veut pas m'aider à utiliser les méthodes des crates
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct Thumbnail {
     pub url: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct Snippet {
     pub title: String,
     pub thumbnails: Thumbnails,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct Thumbnails {
     pub high: Thumbnail,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
+#[allow(non_snake_case)]
 pub struct Id {
-    pub video_id: String,
+    pub videoId: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct Item {
     pub id: Id,
     pub snippet: Snippet,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct Response {
     pub items: Vec<Item>,
 }
@@ -52,23 +53,24 @@ pub struct Response {
 
 // Serde JSON in order to fetch
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct VideoSnippet {
     pub title: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
+#[allow(non_snake_case)]
 pub struct VideoId {
     pub videoId: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct VideoItem {
     pub id: VideoId,
     pub snippet: VideoSnippet,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct VideoResponse {
     pub items: Vec<VideoItem>,
 }

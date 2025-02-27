@@ -2,13 +2,11 @@ use youtube_dl::YoutubeDl;
 use std::fs::File;
 use std::io::BufReader;
 use rodio::{Decoder, OutputStream, source::Source};
-use dotenv::dotenv;
 use std::env;
 use crate::models::fetcher::{Music, Response, VideoResponse, YoutubeVideo};
 
 /// Takes a search query as input, and returns a Vec of ``YoutubeVideo``s if the search was successful, else an error.
 pub async fn search(query: String) -> Result<Vec<YoutubeVideo>, reqwest::Error> {
-  dotenv().ok(); // Loading the env file's content
   let api_key = env::var("YOUTUBE_API_KEY").expect("Error: YOUTUBE_API_KEY must be set.");
 
   let request_url = format!("https://www.googleapis.com/youtube/v3/search?key={}&type=video&part=snippet&q={}", api_key, query);
@@ -43,7 +41,6 @@ pub async fn search(query: String) -> Result<Vec<YoutubeVideo>, reqwest::Error> 
 /// TODO : Properly implement the method because it's not working atm
 /// Takes a YouTube video URL as input (TODO : will tackle the YTM case later), and returns its metadata in the form of a Music struct instance.
 pub async fn fetch_video_metadata(url: String) -> Result<Music, reqwest::Error> {
-  dotenv().ok();
   let api_key = env::var("YOUTUBE_API_KEY").expect("Error: YOUTUBE_API_KEY must be set.");
   let video_id = &url[23..url.len()]; // to get the video's ID
   let request_url = format!("https://www.googleapis.com/youtube/v3/videos?part=snippet&key={}&id={}", api_key, video_id);

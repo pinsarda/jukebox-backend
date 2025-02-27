@@ -1,6 +1,6 @@
 use diesel::RunQueryDsl;
 use diesel::result::Error;
-use crate::models::user::{ User, NewUser};
+use crate::models::user::NewUser;
 use crate::DbConnection;
 
 pub fn create_user(conn: &mut DbConnection, new_user: NewUser) -> Result<NewUser, Error> {

@@ -1,6 +1,6 @@
 use actix_web::{ web::Data, Error };
-use paperclip::actix::{ api_v2_operation, get, post, web::{self, Json} };
-use crate::models::user::{ User, NewUser };
+use paperclip::actix::{ api_v2_operation, post, web::{Json} };
+use crate::models::user::NewUser;
 use crate::DbPool;
 use crate::db_handlers::user::create_user;
 

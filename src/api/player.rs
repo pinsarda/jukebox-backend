@@ -1,5 +1,5 @@
 use actix_web::{ HttpResponse, Responder};
-use paperclip::actix::{ api_v2_operation, get, post, web::{ self, Json }};
+use paperclip::actix::{ api_v2_operation, get, post};
 
 #[api_v2_operation]
 #[post("/player/play")]

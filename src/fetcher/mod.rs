@@ -2,8 +2,6 @@ use youtube_dl::YoutubeDl;
 use std::fs::File;
 use std::io::BufReader;
 use rodio::{Decoder, OutputStream, source::Source};
-use reqwest::{Client, ClientBuilder};
-use serde::{Serialize, Deserialize};
 use dotenv::dotenv;
 use std::env;
 use crate::models::fetcher::{Music, Response, VideoResponse, YoutubeVideo};

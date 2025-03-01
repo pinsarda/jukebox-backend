@@ -16,7 +16,7 @@ pub fn get_music_by_id(conn: &mut DbConnection, music_id: i32) -> Result<Music, 
         .select(Music::as_select())
         .first::<Music>(conn).expect("Error retrieving music from database");
 
-    Ok(result)   
+    Ok(result)
 }
 
 pub fn to_rich_music(conn: &mut DbConnection, music: Music, user_id: i32) -> Result<RichMusic, Error> {
@@ -52,7 +52,6 @@ pub fn get_album_musics(conn: &mut DbConnection, album: &Album, user_id: i32) ->
 
     Ok(results)
 }
-
 
 pub fn add_music(conn: &mut DbConnection, new_music: NewMusic) -> Result<NewMusic, Error> {
     use crate::schema::musics::dsl::*;

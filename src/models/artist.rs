@@ -2,6 +2,9 @@ use crate::schema::*;
 use diesel::prelude::*;
 use serde::{Serialize, Deserialize};
 use utoipa::ToSchema;
+use std::convert::From;
+
+use crate::models::fetcher::FetcherArtist;
 
 
 #[derive(Debug, Serialize, Deserialize, Queryable, Selectable, ToSchema)]
@@ -19,6 +22,15 @@ pub struct Artist {
 pub struct NewArtist {
     pub name: String,
     pub description: Option<String>
+}
+
+impl From<FetcherArtist> for NewArtist {
+    fn from(fetcher_artist: FetcherArtist) -> Self {
+        NewArtist {
+            name: fetcher_artist.name.clone(),
+            description: Some("".to_owned())
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]

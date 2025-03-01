@@ -24,7 +24,6 @@ async fn metadata(id: Identity, pool: Data<DbPool>, query_data: Query<Id>) -> Re
 /// Add a music to the database
 async fn add_music(_id: Identity, pool: Data<DbPool>, new_music: Json<NewMusic>) -> Result<Json<NewMusic>, Error> {
     
-
     let conn = &mut pool.get().unwrap();
 
     let result = crate::db_handlers::music::add_music(conn, new_music.into_inner()).unwrap();

@@ -1,83 +1,95 @@
+pub mod ytmusic;
+
 use youtube_dl::YoutubeDl;
 use std::fs::File;
 use std::io::BufReader;
+use std::path::Path;
 use rodio::{Decoder, OutputStream, source::Source};
-use std::env;
-use crate::models::fetcher::{Music, Response, VideoResponse, YoutubeVideo};
+use crate::api::fetcher;
+use crate::db_handlers::album::get_album_by_title;
+use crate::db_handlers::artist::get_artist_by_name;
+use crate::models::fetcher::{FetcherAlbum, FetcherArtist, FetcherMusic};
+use crate::models::music::{Music, NewMusic};
+use crate::models::album::NewAlbum;
+use crate::models::artist::NewArtist;
+use crate::DbConnection;
+use diesel::result::Error;
 
-/// Takes a search query as input, and returns a Vec of ``YoutubeVideo``s if the search was successful, else an error.
-pub async fn search(query: String) -> Result<Vec<YoutubeVideo>, reqwest::Error> {
-  let api_key = env::var("YOUTUBE_API_KEY").expect("Error: YOUTUBE_API_KEY must be set.");
-
-  let request_url = format!("https://www.googleapis.com/youtube/v3/search?key={}&type=video&part=snippet&q={}", api_key, query);
-
-  let resp = reqwest::get(&request_url) // Gets a JSON response, TODO : cover the Error cases
-        .await?
-        .json::<Response>() // Deserializes the JSON response into a Response struct instance
-        // Dans mon fichier "sandbox" la méthode json existe parfaitement, je corrigerai le bug plus tard j'en peux plus
-        .await?;
-
-  let mut videos = Vec::new();
-
-  // Parse the Response struct's fields, can probably be implemented as its own method for readability
-
-  for item in resp.items {
-    let video_id = item.id.videoId;
-    let video_title = item.snippet.title;
-    let video_url = format!("www.youtube.com/watch?v={}", video_id); // redundant info, TODO : change that
-
-    let video = YoutubeVideo {
-      id: video_id,
-      url: video_url,
-      title: video_title,
-    };
-
-    videos.push(video);
-  }
-
-  Ok(videos)
+pub enum SearchResult {
+    Music(FetcherMusic),
+    Album(FetcherAlbum),
+    Artist(FetcherArtist),
 }
 
-/// TODO : Properly implement the method because it's not working atm
-/// Takes a YouTube video URL as input (TODO : will tackle the YTM case later), and returns its metadata in the form of a Music struct instance.
-pub async fn fetch_video_metadata(url: String) -> Result<Music, reqwest::Error> {
-  let api_key = env::var("YOUTUBE_API_KEY").expect("Error: YOUTUBE_API_KEY must be set.");
-  let video_id = &url[23..url.len()]; // to get the video's ID
-  let request_url = format!("https://www.googleapis.com/youtube/v3/videos?part=snippet&key={}&id={}", api_key, video_id);
+pub trait Fetcher {
+    fn search_musics(&self, query: String) -> Vec<FetcherMusic>;
+    fn search_albums(&self, query: String) -> Vec<FetcherAlbum>;
+    fn search_artists(&self, query: String) -> Vec<FetcherArtist>;
+    fn search(&self, query: String) -> Vec<SearchResult>;
+    fn download(&self, music: Music, path: &Path) -> Result<(), actix_web::Error>;
+    fn get_music_by_fetcher_music_id(&self, fetcher_music_id: &String) -> Result<FetcherMusic, actix_web::Error>;
 
-  let resp = reqwest::get(&request_url) // Gets a JSON response, TODO : cover the Error cases
-        .await?
-        .json::<VideoResponse>() // Deserializes the JSON response into a Response struct instance
-        // idem que pour search
-        .await?;
+    fn disambiguate_album(&self, conn: &mut DbConnection, fetcher_music: &FetcherMusic) -> Result<i32, Error> {
+        let existing_album_result = get_album_by_title(conn, fetcher_music.album.title.clone());
 
-  let item = resp.items.into_iter().next().expect("No video found");
+        match existing_album_result {
+            Ok(existing_album) => Ok(existing_album.id),
+            Err(_) => Err(Error::NotFound)
+        }
+    }
 
-  let music_metadata = Music {
-          id: 0, // You can set this to a meaningful value if needed
-          title: item.snippet.title,
-          artists_ids: "".to_string(), // Set this to the appropriate value if available
-          album_id: 0, // Set this to the appropriate value if available
-      };
-  
-  Ok(music_metadata)
-}
+    fn disambiguate_artists(&self, conn: &mut DbConnection, fetcher_artists: &Vec<FetcherArtist>) -> Result<(Vec<i32>, Vec<FetcherArtist>), Error> {
 
-pub async fn download_video(url: String) {
-    YoutubeDl::new(url)
-    .format("m4a")
-    .socket_timeout("15")
-    .output_template("test.m4a")
-    .extra_arg("--no-part")
-    .download_to("Downloads")
-    .expect("Erreur lors du téléchargement");
-}
+        let mut disambiguated_artists = Vec::new();
+        let mut artists_to_add = Vec::new();
 
-pub async fn play_audio(filename: String) {
-    let (_stream, stream_handle) = OutputStream::try_default().unwrap();
-    let file = BufReader::new(File::open(format!("Downloads/{}", filename)).unwrap());
-    let source = Decoder::new(file).unwrap();
-    stream_handle.play_raw(source.convert_samples()).expect("Erreur de lecture");
+        for fetcher_artist in fetcher_artists {
+            let existing_artist_result = get_artist_by_name(conn, fetcher_artist.name.clone());
 
-    std::thread::sleep(std::time::Duration::from_secs(30));
+            match existing_artist_result {
+                Ok(existing_artist) => disambiguated_artists.push(existing_artist.id),
+                Err(_) => artists_to_add.push(fetcher_artist.clone())
+            }
+        }
+
+        Ok((disambiguated_artists, artists_to_add))
+    }
+
+    // TODO : determine if music already exists in database
+    fn disambiguate_music(&self, conn: &mut DbConnection, fetcher_music: &FetcherMusic) -> Result<i32, Error> {
+        Ok(0)
+    }
+
+    fn add_music(&self, conn: &mut DbConnection, fetcher_music_id: &String) -> Result<(), Error> {
+        let fetcher_music = self.get_music_by_fetcher_music_id(fetcher_music_id).unwrap();
+        
+        let (mut disambiguated_artists, artists_to_add) = self.disambiguate_artists(conn, &fetcher_music.artists).unwrap();
+    
+        for fetcher_artist in artists_to_add {
+            let new_artist = NewArtist::from(fetcher_artist);
+
+            let added_artist = crate::db_handlers::artist::add_artist(conn, new_artist).unwrap();
+            disambiguated_artists.push(added_artist.id);
+        }
+    
+        let disambiguated_album_id = match self.disambiguate_album(conn, &fetcher_music) {
+            Ok(disambiguated_album_id) => disambiguated_album_id,
+            Err(_) => {
+                let new_album = NewAlbum::from(fetcher_music.album);
+                let added_album = crate::db_handlers::album::add_album(conn, new_album).unwrap();
+                added_album.id
+            }
+        };
+    
+        let new_music = NewMusic {
+            title: fetcher_music.title,
+            artists_ids: disambiguated_artists,
+            album_id: disambiguated_album_id
+        };
+    
+        crate::db_handlers::music::add_music(conn, new_music).unwrap();
+    
+        Ok(())
+    }
+    
 }

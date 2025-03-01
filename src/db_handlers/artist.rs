@@ -18,6 +18,17 @@ pub fn get_artist_by_id(conn: &mut DbConnection, artist_id: i32) -> Result<Artis
     Ok(artist)
 }
 
+pub fn get_artist_by_name(conn: &mut DbConnection, artist_name: String) -> Result<Artist, Error> {
+    use crate::schema::artists::*;
+
+    let artist_result = dsl::artists
+        .filter(name.eq(artist_name))
+        .select(Artist::as_select())
+        .first(conn);
+
+    artist_result
+}
+
 pub fn to_rich_artist(conn: &mut DbConnection, artist: Artist, user_id: i32) -> Result<RichArtist, Error> {
     
     let user = get_user_by_id(conn, user_id).expect("Error while getting user data");
@@ -48,13 +59,12 @@ pub fn get_artists_by_ids(conn: &mut DbConnection, artists_ids: Vec<i32>, user_i
     Ok(results)
 }
 
-
-pub fn add_artist(conn: &mut DbConnection, new_artist: NewArtist) -> Result<NewArtist, Error> {
+pub fn add_artist(conn: &mut DbConnection, new_artist: NewArtist) -> Result<Artist, Error> {
     use crate::schema::artists::dsl::*;
     
-    diesel::insert_into(artists)
+    let inserted_artist = diesel::insert_into(artists)
         .values(&new_artist)
-        .execute(conn)
-        .expect("Database error when inserting artist");
-    return Ok(new_artist);
+        .get_result::<Artist>(conn).unwrap();
+
+    return Ok(inserted_artist);
 }

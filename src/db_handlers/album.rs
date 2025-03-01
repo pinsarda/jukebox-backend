@@ -20,6 +20,17 @@ pub fn get_album_by_id(conn: &mut DbConnection, album_id: i32) -> Result<Album, 
     Ok(album)
 }
 
+pub fn get_album_by_title(conn: &mut DbConnection, album_title: String) -> Result<Album, Error> {
+    use crate::schema::albums::*;
+
+    let album_result = dsl::albums
+        .filter(title.eq(album_title))
+        .select(Album::as_select())
+        .first(conn);
+
+    album_result
+}
+
 pub fn to_rich_album(conn: &mut DbConnection, album: Album, user_id: i32) -> Result<RichAlbum, Error> {
 
     let user = get_user_by_id(conn, user_id).expect("Error while getting user data");
@@ -38,12 +49,12 @@ pub fn to_rich_album(conn: &mut DbConnection, album: Album, user_id: i32) -> Res
     Ok(album_result)
 }
 
-pub fn add_album(conn: &mut DbConnection, new_album: NewAlbum) -> Result<NewAlbum, Error> {
+pub fn add_album(conn: &mut DbConnection, new_album: NewAlbum) -> Result<Album, Error> {
     use crate::schema::albums::dsl::*;
     
-    diesel::insert_into(albums)
+    let inserted_album = diesel::insert_into(albums)
         .values(&new_album)
-        .execute(conn)
-        .expect("Database error when inserting user");
-    return Ok(new_album);
+        .get_result::<Album>(conn).unwrap();
+
+    return Ok(inserted_album);
 }

@@ -19,7 +19,7 @@ use diesel::r2d2::ConnectionManager;
 use diesel::r2d2::Pool;
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 
-use api::{player::{ play, stop, next, previous, state }, routes::{ download, hello }};
+use api::{player::{ play, stop, next, previous, state }};
 use api::user::{ login, signup, get_info };
 use api::music::{self, add_music};
 use api::album::{self, add_album};
@@ -78,9 +78,6 @@ async fn main() -> std::io::Result<()> {
             )
             .wrap(Logger::default())
             .into_utoipa_app()
-            // api routes (to be removed)
-            .service(hello)
-            .service(download)
             // user managment
             .service(signup)
             .service(login)

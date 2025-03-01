@@ -1,5 +1,5 @@
 use super::Fetcher;
-use crate::{models::{album::NewAlbum, artist::NewArtist, fetcher::{self, FetcherAlbum, FetcherArtist, FetcherMusic}, music::{Music, NewMusic}}, schema::albums::title};
+use crate::models::{fetcher::{FetcherAlbum, FetcherArtist, FetcherMusic}, music::Music};
 
 pub struct YtMusicFetcher {
     id: String,

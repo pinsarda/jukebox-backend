@@ -1,11 +1,6 @@
 pub mod ytmusic;
 
-use youtube_dl::YoutubeDl;
-use std::fs::File;
-use std::io::BufReader;
 use std::path::Path;
-use rodio::{Decoder, OutputStream, source::Source};
-use crate::api::fetcher;
 use crate::db_handlers::album::get_album_by_title;
 use crate::db_handlers::artist::get_artist_by_name;
 use crate::models::fetcher::{FetcherAlbum, FetcherArtist, FetcherMusic};

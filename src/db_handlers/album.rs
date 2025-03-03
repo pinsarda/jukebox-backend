@@ -43,6 +43,11 @@ pub fn to_rich_album(conn: &mut DbConnection, album: Album, user_id: i32) -> Res
         title: album.title,
         artists: artists,
         musics: musics,
+        fetcher: None,
+        youtube_id: None,
+        spotify_id: None,
+        deezer_id: None,
+        apple_music_id: None,
         is_favorited: user.favorite_albums.contains(&album.id)
     };
 

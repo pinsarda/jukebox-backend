@@ -9,7 +9,11 @@ diesel::table! {
         title -> Varchar,
         artists_ids -> Array<Int4>,
         description -> Nullable<Text>,
+        fetcher -> Nullable<Text>,
         youtube_id -> Nullable<Text>,
+        spotify_id -> Nullable<Text>,
+        deezer_id -> Nullable<Text>,
+        apple_music_id -> Nullable<Text>,
     }
 }
 
@@ -18,6 +22,10 @@ diesel::table! {
         id -> Int4,
         name -> Varchar,
         description -> Nullable<Text>,
+        youtube_id -> Nullable<Text>,
+        spotify_id -> Nullable<Text>,
+        deezer_id -> Nullable<Text>,
+        apple_music_id -> Nullable<Text>,
     }
 }
 
@@ -27,7 +35,11 @@ diesel::table! {
         title -> Varchar,
         artists_ids -> Array<Int4>,
         album_id -> Int4,
+        fetcher -> Nullable<Text>,
         youtube_id -> Nullable<Text>,
+        spotify_id -> Nullable<Text>,
+        deezer_id -> Nullable<Text>,
+        apple_music_id -> Nullable<Text>,
     }
 }
 

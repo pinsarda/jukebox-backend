@@ -15,7 +15,11 @@ pub struct Album {
     pub title: String,
     pub artists_ids: Vec<i32>,
     pub description: Option<String>,
-    pub youtube_id: Option<String>
+    pub fetcher: Option<String>,
+    pub youtube_id: Option<String>,
+    pub spotify_id: Option<String>,
+    pub deezer_id: Option<String>,
+    pub apple_music_id: Option<String>
 }
 
 #[derive(Debug, Serialize, Deserialize, Insertable, QueryableByName, Queryable, Selectable, ToSchema)]
@@ -24,17 +28,12 @@ pub struct Album {
 pub struct NewAlbum {
     pub title: String,
     pub artists_ids: Vec<i32>,
-    pub description: Option<String>
-}
-
-impl From<FetcherAlbum> for NewAlbum {
-    fn from(fetcher_album: FetcherAlbum) -> Self {
-        NewAlbum {
-            title: fetcher_album.title.clone(),
-            artists_ids: vec![1],
-            description: Some("".to_owned())
-        }
-    }
+    pub description: Option<String>,
+    pub fetcher: Option<String>,
+    pub youtube_id: Option<String>,
+    pub spotify_id: Option<String>,
+    pub deezer_id: Option<String>,
+    pub apple_music_id: Option<String>
 }
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
@@ -43,5 +42,10 @@ pub struct RichAlbum {
     pub title: String,
     pub artists: Vec<RichArtist>,
     pub musics: Vec<RichMusic>,
-    pub is_favorited: bool
+    pub is_favorited: bool,
+    pub fetcher: Option<String>,
+    pub youtube_id: Option<String>,
+    pub spotify_id: Option<String>,
+    pub deezer_id: Option<String>,
+    pub apple_music_id: Option<String>
 }

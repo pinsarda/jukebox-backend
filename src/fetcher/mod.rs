@@ -84,7 +84,12 @@ pub trait Fetcher {
                 let new_album = NewAlbum {
                     title: fetcher_album.title.clone(),
                     artists_ids: self.regularize_artists(conn, &fetcher_album.artists).unwrap(),
-                    description: None
+                    description: None,
+                    fetcher: None,
+                    youtube_id: None,
+                    spotify_id: None,
+                    deezer_id: None,
+                    apple_music_id: None
                 };
                 let added_album = crate::db_handlers::album::add_album(conn, new_album).unwrap();
                 Ok(added_album.id)

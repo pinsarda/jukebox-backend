@@ -3,7 +3,7 @@ pub mod ytmusic;
 use std::path::Path;
 use crate::db_handlers::album::get_album_by_title;
 use crate::db_handlers::artist::get_artist_by_name;
-use crate::models::fetcher::{FetcherAlbum, FetcherArtist, FetcherMusic};
+use crate::models::fetcher::{FetcherAlbum, FetcherArtist, FetcherMusic, FetcherQueryData};
 use crate::models::music::{Music, NewMusic};
 use crate::models::album::NewAlbum;
 use crate::models::artist::NewArtist;
@@ -17,15 +17,15 @@ pub enum SearchResult {
 }
 
 pub trait Fetcher {
-    fn search_musics(&self, query: String) -> Vec<FetcherMusic>;
-    fn search_albums(&self, query: String) -> Vec<FetcherAlbum>;
-    fn search_artists(&self, query: String) -> Vec<FetcherArtist>;
-    fn search(&self, query: String) -> Vec<SearchResult>;
+    async fn search_musics(&self, query: String) -> Vec<FetcherMusic>;
+    async fn search_albums(&self, query: String) -> Vec<FetcherAlbum>;
+    async fn search_artists(&self, query: String) -> Vec<FetcherArtist>;
+    async fn search(&self, query: String) -> Vec<SearchResult>;
     fn download(&self, music: Music, path: &Path) -> Result<(), actix_web::Error>;
-    fn get_music_by_fetcher_music_id(&self, fetcher_music_id: &String) -> Result<FetcherMusic, actix_web::Error>;
+    async fn get_album_by_query_data(&self, fetcher_music_data: &FetcherQueryData) -> Result<FetcherAlbum, actix_web::Error>;
 
-    fn disambiguate_album(&self, conn: &mut DbConnection, fetcher_music: &FetcherMusic) -> Result<i32, Error> {
-        let existing_album_result = get_album_by_title(conn, fetcher_music.album.title.clone());
+    fn disambiguate_album(&self, conn: &mut DbConnection, fetcher_album: &FetcherAlbum) -> Result<i32, Error> {
+        let existing_album_result = get_album_by_title(conn, fetcher_album.title.clone());
 
         match existing_album_result {
             Ok(existing_album) => Ok(existing_album.id),
@@ -50,15 +50,8 @@ pub trait Fetcher {
         Ok((disambiguated_artists, artists_to_add))
     }
 
-    // TODO : determine if music already exists in database
-    fn disambiguate_music(&self, conn: &mut DbConnection, fetcher_music: &FetcherMusic) -> Result<i32, Error> {
-        Ok(0)
-    }
-
-    fn add_music(&self, conn: &mut DbConnection, fetcher_music_id: &String) -> Result<(), Error> {
-        let fetcher_music = self.get_music_by_fetcher_music_id(fetcher_music_id).unwrap();
-        
-        let (mut disambiguated_artists, artists_to_add) = self.disambiguate_artists(conn, &fetcher_music.artists).unwrap();
+    fn regularize_artists(&self, conn: &mut DbConnection, fetcher_artists: &Vec<FetcherArtist>) -> Result<Vec<i32>, Error> {
+        let (mut disambiguated_artists, artists_to_add) = self.disambiguate_artists(conn, fetcher_artists).unwrap();
     
         for fetcher_artist in artists_to_add {
             let new_artist = NewArtist::from(fetcher_artist);
@@ -66,20 +59,51 @@ pub trait Fetcher {
             let added_artist = crate::db_handlers::artist::add_artist(conn, new_artist).unwrap();
             disambiguated_artists.push(added_artist.id);
         }
+
+        Ok(disambiguated_artists)
+    }
+
+    // TODO : determine if music already exists in database
+    fn disambiguate_music(&self, conn: &mut DbConnection, fetcher_music: &FetcherMusic) -> Result<i32, Error> {
+        Ok(0)
+    }
+
+    async fn add_music_with_album(&self, conn: &mut DbConnection, fetcher_music_data: &FetcherQueryData) -> Result<(), Error> {
+        let fetcher_album = self.get_album_by_query_data(fetcher_music_data).await.unwrap();
+
+        self.add_album(conn, &fetcher_album).await.unwrap();
     
-        let disambiguated_album_id = match self.disambiguate_album(conn, &fetcher_music) {
-            Ok(disambiguated_album_id) => disambiguated_album_id,
+        Ok(())
+    }
+
+    async fn add_album(&self, conn: &mut DbConnection, fetcher_album: &FetcherAlbum) -> Result<(), Error> {
+    
+        let new_album_id = match self.disambiguate_album(conn, &fetcher_album) {
+            Ok(_) => Err("The album already exists in database"),
             Err(_) => {
-                let new_album = NewAlbum::from(fetcher_music.album);
+                let new_album = NewAlbum {
+                    title: fetcher_album.title.clone(),
+                    artists_ids: self.regularize_artists(conn, &fetcher_album.artists).unwrap(),
+                    description: None
+                };
                 let added_album = crate::db_handlers::album::add_album(conn, new_album).unwrap();
-                added_album.id
+                Ok(added_album.id)
             }
-        };
+        }.unwrap();
+
+        for fetcher_music in &fetcher_album.musics {
+            self.add_single_music(conn, fetcher_music, new_album_id).await.expect("Error inserting music for album");
+        }
+    
+        Ok(())
+    }
+
+    async fn add_single_music(&self, conn: &mut DbConnection, fetcher_music: &FetcherMusic, album_id: i32) -> Result<(), Error> {
     
         let new_music = NewMusic {
-            title: fetcher_music.title,
-            artists_ids: disambiguated_artists,
-            album_id: disambiguated_album_id
+            title: fetcher_music.title.clone(),
+            artists_ids: self.regularize_artists(conn, &fetcher_music.artists).unwrap(),
+            album_id: album_id
         };
     
         crate::db_handlers::music::add_music(conn, new_music).unwrap();

@@ -13,7 +13,7 @@ use actix_web::cookie::time::Duration;
 use actix_web::cookie::Key;
 use actix_web::web::Data;
 use actix_web::{ App, HttpServer, middleware::Logger };
-use api::fetcher::yt_music_add;
+use api::fetcher::{yt_music_add, yt_music_search};
 use diesel::pg::Pg;
 use diesel::prelude::*;
 use diesel::r2d2::ConnectionManager;
@@ -92,6 +92,7 @@ async fn main() -> std::io::Result<()> {
             .service(add_artist)
             // fetching
             .service(yt_music_add)
+            .service(yt_music_search)
             // player api
             .service(play)
             .service(stop)

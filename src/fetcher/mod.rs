@@ -9,6 +9,7 @@ use crate::models::album::NewAlbum;
 use crate::models::artist::NewArtist;
 use crate::DbConnection;
 use diesel::result::Error;
+use crate::models::errors::SearchError;
 use rust_fuzzy_search::fuzzy_compare;
 
 pub trait Fetcher {
@@ -104,18 +105,16 @@ pub trait Fetcher {
         Ok(0)
     }
 
-    async fn add_music_with_album(&self, conn: &mut DbConnection, fetcher_music_data: &FetcherQueryData) -> Result<(), Error> {
+    async fn add_music_with_album(&self, conn: &mut DbConnection, fetcher_music_data: &FetcherQueryData) -> Result<(), SearchError> {
         let fetcher_album = self.get_album_by_query_data(fetcher_music_data).await.unwrap();
 
-        self.add_album(conn, &fetcher_album).await.unwrap();
-    
-        Ok(())
+        self.add_album(conn, &fetcher_album).await
     }
 
-    async fn add_album(&self, conn: &mut DbConnection, fetcher_album: &FetcherAlbum) -> Result<(), Error> {
+    async fn add_album(&self, conn: &mut DbConnection, fetcher_album: &FetcherAlbum) -> Result<(), SearchError> {
     
         let new_album_id = match self.disambiguate_album(conn, &fetcher_album) {
-            Ok(_) => Err("The album already exists in database"),
+            Ok(_) => return Err(SearchError::new("Album already exists in database")),
             Err(_) => {
                 let new_album = NewAlbum {
                     title: fetcher_album.title.clone(),
@@ -130,7 +129,7 @@ pub trait Fetcher {
                 let added_album = crate::db_handlers::album::add_album(conn, new_album).unwrap();
                 Ok(added_album.id)
             }
-        }.unwrap();
+        }?;
 
         for fetcher_music in &fetcher_album.musics {
             self.add_single_music(conn, fetcher_music, new_album_id).await.expect("Error inserting music for album");

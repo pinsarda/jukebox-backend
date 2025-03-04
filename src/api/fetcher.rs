@@ -23,7 +23,8 @@ async fn yt_music_search(pool: Data<DbPool>, data: Query<SearchQuery>) -> impl R
 async fn yt_music_add(pool: Data<DbPool>, data: Json<FetcherQueryData>) -> impl Responder {
     let conn = &mut pool.get().unwrap();
 
-    YtMusicFetcher::new().add_music_with_album(conn, &data).await.unwrap();
-
-    HttpResponse::Ok().body("Musique en cours d'ajout !")
+    match YtMusicFetcher::new().add_music_with_album(conn, &data).await {
+        Ok(_) => HttpResponse::Ok().body("Succesfully added new music."),
+        Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
+    }
 }

@@ -12,9 +12,9 @@ pub struct SearchQuery {
 #[get("/fetcher/ytmusic/search")]
 /// Get search results from Youtube Music
 async fn yt_music_search(pool: Data<DbPool>, data: Query<SearchQuery>) -> impl Responder {
-    YtMusicFetcher::new().search_musics(data.query.clone()).await;
+    let results = YtMusicFetcher::new().search(data.query.clone()).await;
 
-    HttpResponse::Ok().body("Not implemented")
+    HttpResponse::Ok().json(results)
 }
 
 #[utoipa::path()]

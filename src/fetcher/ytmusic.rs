@@ -1,6 +1,6 @@
 use ytmapi_rs::{auth::BrowserToken, common::YoutubeID, parse::ParsedSongArtist, YtMusic};
 
-use super::Fetcher;
+use crate::fetcher::Fetcher;
 use crate::models::{fetcher::{FetcherAlbum, FetcherArtist, FetcherMusic, FetcherQueryData}, music::Music};
 
 pub struct YtMusicFetcher {
@@ -23,7 +23,7 @@ impl YtMusicFetcher {
     fn artists_result_to_fetcher_artists(&self, artists: Vec<ParsedSongArtist>) -> Vec<FetcherArtist> {
         artists.iter().map(|artist|
             FetcherArtist {
-                fetcher_id: artist.id.clone().unwrap().get_raw().to_string(),
+                fetcher_id: Some(artist.id.clone().unwrap().get_raw().to_string()),
                 name: artist.name.to_string()
             }
         ).collect::<Vec<FetcherArtist>>()
@@ -33,19 +33,54 @@ impl YtMusicFetcher {
 impl Fetcher for YtMusicFetcher {
     async fn search_musics(&self, query: String) -> Vec<FetcherMusic> {
         let yt = get_yt_music().await;
-        Vec::new()
+        let search_result = yt.search_songs(query).await.unwrap();
+        let musics = search_result.iter().map(|music|
+            FetcherMusic {
+                fetcher_id: Some(String::from(music.video_id.get_raw())),
+                title: music.title.clone(),
+                artists: Vec::from([
+                    FetcherArtist {
+                        fetcher_id: None,
+                        name: music.artist.clone() 
+                    }
+                ])
+            }
+        ).collect::<Vec<FetcherMusic>>();
+        musics
     }
 
     async fn search_albums(&self, query: String) -> Vec<FetcherAlbum> {
-        Vec::new()
+        let yt = get_yt_music().await;
+        let search_results = yt.search_albums(query).await.unwrap();
+        let albums = search_results.iter().map(|album| {
+                FetcherAlbum {
+                    fetcher_id: Some(String::from(album.album_id.get_raw())),
+                    title: album.title.clone(),
+                    artists: Vec::from([
+                        FetcherArtist {
+                            fetcher_id: None,
+                            name: album.artist.clone() 
+                    }]),
+                    // The API makes it hard to search with musics efficiently
+                    // Musics are correctly registered when adding music to library
+                    musics: Vec::new()
+                }
+            }
+        ).collect::<Vec<FetcherAlbum>>();
+        albums
     }
 
     async fn search_artists(&self, query: String) -> Vec<FetcherArtist> {
-        Vec::new()
-    }
-
-    async fn search(&self, query: String) -> Vec<super::SearchResult> {
-        Vec::new()
+        let yt = get_yt_music().await;
+        let search_results = yt.search_artists(query).await.unwrap();
+        let artists = search_results.iter().map(|artist| {
+                FetcherArtist {
+                    name: artist.artist.to_string(),
+                    fetcher_id: Some(artist.browse_id.get_raw().to_string())
+                }
+            }
+        ).collect::<Vec<FetcherArtist>>();
+        artists
     }
 
     fn download(&self, music: Music, path: &std::path::Path) -> Result<(), actix_web::Error> {
@@ -63,14 +98,14 @@ impl Fetcher for YtMusicFetcher {
 
         let musics = album.tracks.iter().map(|music|
             FetcherMusic {
-                fetcher_id: String::from(music.video_id.get_raw()),
+                fetcher_id: Some(String::from(music.video_id.get_raw())),
                 title: music.title.clone(),
                 artists: artists.clone()
             }
         ).collect::<Vec<FetcherMusic>>();
 
         Ok(FetcherAlbum {
-            fetcher_id: album.audio_playlist_id.clone().unwrap().get_raw().to_string(),
+            fetcher_id: Some(album.audio_playlist_id.clone().unwrap().get_raw().to_string()),
             title: album.title,
             musics: musics,
             artists: artists.clone(),

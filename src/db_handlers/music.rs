@@ -63,7 +63,7 @@ pub fn add_music(conn: &mut DbConnection, new_music: NewMusic) -> Result<NewMusi
     return Ok(new_music);
 }
 
-pub fn search_musics(conn: &mut DbConnection, query: &str, user_id: i32) -> Result<Vec<RichMusic>, Error> {
+pub async fn search_musics(conn: &mut DbConnection, query: &str, user_id: i32) -> Result<Vec<RichMusic>, Error> {
     use crate::schema::musics::dsl::*;
     
     // Temporary solution until proper fuzzy searching is implemented for postgres

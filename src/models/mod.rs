@@ -4,6 +4,7 @@ pub mod album;
 pub mod artist;
 pub mod fetcher;
 pub mod errors;
+pub mod search;
 
 use serde::{Serialize, Deserialize};
 use utoipa::ToSchema;
@@ -11,9 +12,4 @@ use utoipa::ToSchema;
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct Id {
     pub id: i32
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize, ToSchema)]
-pub struct SearchQuery {
-    pub query: String
 }

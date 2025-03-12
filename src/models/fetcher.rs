@@ -31,7 +31,7 @@ pub struct FetcherQueryData {
 }
 
 #[derive(Clone, Serialize, Deserialize, ToSchema, Debug)]
-pub enum SearchResult {
+pub enum FetcherSearchResult {
     Music(FetcherMusic),
     Album(FetcherAlbum),
     Artist(FetcherArtist),

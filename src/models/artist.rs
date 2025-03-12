@@ -45,7 +45,7 @@ impl From<FetcherArtist> for NewArtist {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, ToSchema)]
+#[derive(Debug, Serialize, Deserialize, ToSchema, Clone)]
 pub struct RichArtist {
     pub id: i32,
     pub name: String,

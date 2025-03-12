@@ -64,7 +64,7 @@ pub fn add_album(conn: &mut DbConnection, new_album: NewAlbum) -> Result<Album, 
     return Ok(inserted_album);
 }
 
-pub fn search_albums(conn: &mut DbConnection, query: &str, user_id: i32) -> Result<Vec<RichAlbum>, Error> {
+pub async fn search_albums(conn: &mut DbConnection, query: &str, user_id: i32) -> Result<Vec<RichAlbum>, Error> {
     use crate::schema::albums::dsl::*;
     
     // Temporary solution until proper fuzzy searching is implemented for postgres

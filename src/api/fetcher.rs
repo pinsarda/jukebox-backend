@@ -1,6 +1,6 @@
 use actix_web::{ get, post, web::{Data, Json, Query}, HttpResponse, Responder };
 use utoipa::ToSchema;
-use crate::{fetcher::{ytmusic::YtMusicFetcher, Fetcher}, models::{fetcher::FetcherQueryData, SearchQuery}, DbPool};
+use crate::{fetcher::{ytmusic::YtMusicFetcher, Fetcher}, models::{fetcher::FetcherQueryData, search::SearchQuery}, DbPool};
 
 #[utoipa::path()]
 #[get("/fetcher/ytmusic/search")]

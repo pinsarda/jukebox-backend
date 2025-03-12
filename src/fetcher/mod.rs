@@ -3,7 +3,7 @@ pub mod ytmusic;
 use std::path::Path;
 use crate::db_handlers::album::get_album_by_title;
 use crate::db_handlers::artist::get_artist_by_name;
-use crate::models::fetcher::{FetcherAlbum, FetcherArtist, FetcherMusic, FetcherQueryData, SearchResult};
+use crate::models::fetcher::{FetcherAlbum, FetcherArtist, FetcherMusic, FetcherQueryData, FetcherSearchResult};
 use crate::models::music::{Music, NewMusic};
 use crate::models::album::NewAlbum;
 use crate::models::artist::NewArtist;
@@ -17,7 +17,7 @@ pub trait Fetcher {
     async fn search_albums(&self, query: String) -> Vec<FetcherAlbum>;
     async fn search_artists(&self, query: String) -> Vec<FetcherArtist>;
 
-    async fn search(&self, query: String) -> Vec<SearchResult> {
+    async fn search(&self, query: String) -> Vec<FetcherSearchResult> {
 
         let (musics_result, albums_results, artists_result) = tokio::join!(
             self.search_musics(query.to_string()),
@@ -25,31 +25,31 @@ pub trait Fetcher {
             self.search_artists(query.to_string())
         );
 
-        let mut results: Vec<SearchResult> = musics_result.into_iter().map(SearchResult::Music)
-            .chain(albums_results.into_iter().map(SearchResult::Album))
-            .chain(artists_result.into_iter().map(SearchResult::Artist))
+        let mut results: Vec<FetcherSearchResult> = musics_result.into_iter().map(FetcherSearchResult::Music)
+            .chain(albums_results.into_iter().map(FetcherSearchResult::Album))
+            .chain(artists_result.into_iter().map(FetcherSearchResult::Artist))
             .collect();
 
         results.sort_by(|a, b| {
             let score_a = match a {
-                SearchResult::Album(album) => {
+                FetcherSearchResult::Album(album) => {
                     fuzzy_compare(&query, &album.title)
                 },
-                SearchResult::Music(music) => {
+                FetcherSearchResult::Music(music) => {
                     fuzzy_compare(&query, &music.title)
                 },
-                SearchResult::Artist(artist) => {
+                FetcherSearchResult::Artist(artist) => {
                     fuzzy_compare(&query, &artist.name)
                 },
             };
             let score_b = match b {
-                SearchResult::Album(album) => {
+                FetcherSearchResult::Album(album) => {
                     fuzzy_compare(&query, &album.title)
                 },
-                SearchResult::Music(music) => {
+                FetcherSearchResult::Music(music) => {
                     fuzzy_compare(&query, &music.title)
                 },
-                SearchResult::Artist(artist) => {
+                FetcherSearchResult::Artist(artist) => {
                     fuzzy_compare(&query, &artist.name)
                 },
             };

@@ -4,7 +4,7 @@ use serde::{Serialize, Deserialize};
 use utoipa::ToSchema;
 use std::convert::From;
 
-use super::{artist::RichArtist, fetcher::FetcherAlbum, music::RichMusic};
+use super::{artist::RichArtist, music::RichMusic};
 
 
 #[derive(Debug, Serialize, Deserialize, QueryableByName, Identifiable, Queryable, Selectable, ToSchema)]

@@ -12,3 +12,8 @@ use utoipa::ToSchema;
 pub struct Id {
     pub id: i32
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize, ToSchema)]
+pub struct SearchQuery {
+    pub query: String
+}

@@ -1,12 +1,6 @@
 use actix_web::{ get, post, web::{Data, Json, Query}, HttpResponse, Responder };
-use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
-use crate::{fetcher::{ytmusic::YtMusicFetcher, Fetcher}, models::fetcher::FetcherQueryData, DbPool};
-
-#[derive(Clone, Debug, Serialize, Deserialize, ToSchema)]
-pub struct SearchQuery {
-    pub query: String
-}
+use crate::{fetcher::{ytmusic::YtMusicFetcher, Fetcher}, models::{fetcher::FetcherQueryData, SearchQuery}, DbPool};
 
 #[utoipa::path()]
 #[get("/fetcher/ytmusic/search")]

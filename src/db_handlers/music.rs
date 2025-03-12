@@ -62,3 +62,26 @@ pub fn add_music(conn: &mut DbConnection, new_music: NewMusic) -> Result<NewMusi
         .expect("Database error when inserting user");
     return Ok(new_music);
 }
+
+pub fn search_musics(conn: &mut DbConnection, query: &str, user_id: i32) -> Result<Vec<RichMusic>, Error> {
+    use crate::schema::musics::dsl::*;
+    
+    // Temporary solution until proper fuzzy searching is implemented for postgres
+    let mut pattern_query = "%".to_string();
+    pattern_query.push_str(query);
+    pattern_query.push_str("%");
+
+    let search_result: Vec<Music> = 
+        musics
+        .filter(title.ilike(pattern_query))
+        .limit(5)
+        .select(Music::as_select())
+        .load(conn)
+        .expect("Error searching music");
+
+    let results: Vec<RichMusic> = search_result.into_iter().map(|music| {
+            to_rich_music(conn, music, user_id).unwrap()
+    }).collect();
+
+    Ok(results)
+}

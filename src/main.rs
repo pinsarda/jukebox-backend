@@ -14,7 +14,7 @@ use actix_web::cookie::Key;
 use actix_web::web::Data;
 use actix_web::{ App, HttpServer, middleware::Logger };
 use api::fetcher::{yt_music_add, yt_music_search};
-use api::search::{search_albums, search_musics};
+use api::search::{search_albums, search_artists, search_musics};
 use diesel::pg::Pg;
 use diesel::prelude::*;
 use diesel::r2d2::ConnectionManager;
@@ -94,6 +94,7 @@ async fn main() -> std::io::Result<()> {
             // database search
             .service(search_musics) 
             .service(search_albums) 
+            .service(search_artists) 
             // fetching
             .service(yt_music_add)
             .service(yt_music_search)

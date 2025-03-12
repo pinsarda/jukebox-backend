@@ -68,3 +68,26 @@ pub fn add_artist(conn: &mut DbConnection, new_artist: NewArtist) -> Result<Arti
 
     return Ok(inserted_artist);
 }
+
+pub fn search_artists(conn: &mut DbConnection, query: &str, user_id: i32) -> Result<Vec<RichArtist>, Error> {
+    use crate::schema::artists::dsl::*;
+    
+    // Temporary solution until proper fuzzy searching is implemented for postgres
+    let mut pattern_query = "%".to_string();
+    pattern_query.push_str(query);
+    pattern_query.push_str("%");
+
+    let search_result: Vec<Artist> = 
+        artists
+        .filter(name.ilike(pattern_query))
+        .limit(5)
+        .select(Artist::as_select())
+        .load(conn)
+        .expect("Error searching music");
+
+    let results: Vec<RichArtist> = search_result.into_iter().map(|music| {
+            to_rich_artist(conn, music, user_id).unwrap()
+    }).collect();
+
+    Ok(results)
+}

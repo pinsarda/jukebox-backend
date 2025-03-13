@@ -4,6 +4,7 @@ mod schema;
 mod models;
 mod db_handlers;
 mod downloader;
+mod player;
 
 use std::error::Error;
 

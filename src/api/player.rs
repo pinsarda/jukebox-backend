@@ -1,7 +1,7 @@
 use actix_identity::Identity;
 use actix_web::{ get, post, web::{Data, Json}, HttpResponse, Responder };
 
-use crate::{api::music, db_handlers::music::get_music_by_id, downloader::{download, is_music_downloaded}, models::Id, DbPool};
+use crate::{api::music, db_handlers::music::get_music_by_id, downloader::{download, get_music_path, is_music_downloaded}, models::Id, player::play_audio, DbPool};
 
 #[utoipa::path()]
 #[post("/player/play")]
@@ -16,7 +16,7 @@ async fn play(id: Identity, pool: Data<DbPool>, query_data: Json<Id>) -> impl Re
         download(&music).await;
     }
 
-    // TODO play music file
+    tokio::spawn(play_audio(get_music_path(&music)));
 
     HttpResponse::Ok().body("Playing music")
 }

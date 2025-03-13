@@ -198,10 +198,10 @@ pub trait Fetcher {
 
         for track in tracks {
             match track["source"].as_str().unwrap() {
-                "youtube" => result.youtube_id = Some(track["data"]["externalId"].to_string()),
-                "spotify" => result.spotify_id = Some(track["data"]["externalId"].to_string()),
-                "deezer" => result.deezer_id = Some(track["data"]["externalId"].to_string()),
-                "appleMusic" => result.apple_music_id = Some(track["data"]["externalId"].to_string()),
+                "youtube" => result.youtube_id = Some(track["data"]["externalId"].as_str().unwrap().to_string()),
+                "spotify" => result.spotify_id = Some(track["data"]["externalId"].as_str().unwrap().to_string()),
+                "deezer" => result.deezer_id = Some(track["data"]["externalId"].as_str().unwrap().to_string()),
+                "appleMusic" => result.apple_music_id = Some(track["data"]["externalId"].as_str().unwrap().to_string()),
                 _ => ()
             }
         }

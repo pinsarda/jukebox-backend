@@ -1,6 +1,7 @@
 use ytmapi_rs::{auth::BrowserToken, common::YoutubeID, parse::ParsedSongArtist, YtMusic};
 
 use crate::fetcher::Fetcher;
+use crate::models::fetcher::ExternalIds;
 use crate::models::{fetcher::{FetcherAlbum, FetcherArtist, FetcherMusic, FetcherQueryData}, music::Music};
 
 pub struct YtMusicFetcher {
@@ -110,5 +111,16 @@ impl Fetcher for YtMusicFetcher {
             musics: musics,
             artists: artists.clone(),
         })
+    }
+
+    async fn get_external_ids(&self, fetcher_music: &FetcherMusic) -> Result<ExternalIds, reqwest::Error> {
+        let mut external_ids = self.musicapi_get_external_ids(fetcher_music).await.unwrap();
+
+        match &fetcher_music.fetcher_id {
+            None => (),
+            Some(ytmusic_id) => external_ids.youtube_id = Some(ytmusic_id.to_string())
+        }
+
+        Ok(external_ids)
     }
 }

@@ -8,6 +8,7 @@ use crate::models::music::{Music, NewMusic};
 use crate::models::album::NewAlbum;
 use crate::models::artist::NewArtist;
 use crate::schema::albums::youtube_id;
+use crate::schema::musics;
 use crate::DbConnection;
 use actix_web::http::header::AUTHORIZATION;
 use diesel::expression::is_aggregate::No;
@@ -162,6 +163,10 @@ pub trait Fetcher {
     }
 
     async fn get_external_ids(&self, fetcher_music: &FetcherMusic) -> Result<ExternalIds, reqwest::Error> {
+        self.musicapi_get_external_ids(fetcher_music).await
+    }
+
+    async fn musicapi_get_external_ids(&self, fetcher_music: &FetcherMusic) -> Result<ExternalIds, reqwest::Error> {
 
         let url = String::from("https://api.musicapi.com/public/search");
     

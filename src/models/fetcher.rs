@@ -36,3 +36,11 @@ pub enum FetcherSearchResult {
     Album(FetcherAlbum),
     Artist(FetcherArtist),
 }
+
+#[derive(Clone, Serialize, Deserialize, Debug)]
+pub struct ExternalIds {
+    pub youtube_id: Option<String>,
+    pub spotify_id: Option<String>,
+    pub deezer_id: Option<String>,
+    pub apple_music_id: Option<String>
+}

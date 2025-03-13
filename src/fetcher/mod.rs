@@ -3,12 +3,16 @@ pub mod ytmusic;
 use std::path::Path;
 use crate::db_handlers::album::get_album_by_title;
 use crate::db_handlers::artist::get_artist_by_name;
-use crate::models::fetcher::{FetcherAlbum, FetcherArtist, FetcherMusic, FetcherQueryData, FetcherSearchResult};
+use crate::models::fetcher::{ExternalIds, FetcherAlbum, FetcherArtist, FetcherMusic, FetcherQueryData, FetcherSearchResult};
 use crate::models::music::{Music, NewMusic};
 use crate::models::album::NewAlbum;
 use crate::models::artist::NewArtist;
+use crate::schema::albums::youtube_id;
 use crate::DbConnection;
+use actix_web::http::header::AUTHORIZATION;
+use diesel::expression::is_aggregate::No;
 use diesel::result::Error;
+use serde_json::json;
 use crate::models::errors::SearchError;
 use rust_fuzzy_search::fuzzy_compare;
 
@@ -139,16 +143,70 @@ pub trait Fetcher {
     }
 
     async fn add_single_music(&self, conn: &mut DbConnection, fetcher_music: &FetcherMusic, album_id: i32) -> Result<(), Error> {
+
+        let external_ids = self.get_external_ids(conn, fetcher_music).await.unwrap();
     
         let new_music = NewMusic {
             title: fetcher_music.title.clone(),
             artists_ids: self.regularize_artists(conn, &fetcher_music.artists).unwrap(),
-            album_id: album_id
+            album_id: album_id,
+            youtube_id: external_ids.youtube_id,
+            spotify_id: external_ids.spotify_id,
+            deezer_id: external_ids.deezer_id,
+            apple_music_id: external_ids.apple_music_id
         };
     
         crate::db_handlers::music::add_music(conn, new_music).unwrap();
     
         Ok(())
+    }
+
+    async fn get_external_ids(&self, conn: &mut DbConnection, fetcher_music: &FetcherMusic) -> Result<ExternalIds, reqwest::Error> {
+
+        let url = String::from("https://api.musicapi.com/public/search");
+    
+        let authorization_token = std::env::var("MUSICAPI_TOKEN").expect("Error: MUSICAPI_TOKEN must be set");
+
+        let response: serde_json::Value = reqwest::Client::new()
+            .post(url)
+            .json(&json!({
+                "track": fetcher_music.title,
+                "artist": fetcher_music.artists[0].name,
+                "type": "track",
+                "sources": Vec::from([
+                    "youtube",
+                    "spotify",
+                    "deezer",
+                    "appleMusic"
+                ])
+            }
+            ))
+            .header(reqwest::header::AUTHORIZATION, authorization_token)
+            .send()
+            .await?
+            .json()
+            .await?;
+
+        let tracks = response["tracks"].as_array().unwrap();
+
+        let mut result = ExternalIds {
+            youtube_id: None,
+            spotify_id: None,
+            deezer_id: None,
+            apple_music_id: None
+        };
+
+        for track in tracks {
+            match track["source"].as_str().unwrap() {
+                "youtube" => result.youtube_id = Some(track["data"]["externalId"].to_string()),
+                "spotify" => result.spotify_id = Some(track["data"]["externalId"].to_string()),
+                "deezer" => result.deezer_id = Some(track["data"]["externalId"].to_string()),
+                "appleMusic" => result.apple_music_id = Some(track["data"]["externalId"].to_string()),
+                _ => ()
+            }
+        }
+
+        Ok(result)
     }
     
 }

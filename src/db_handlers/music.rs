@@ -37,7 +37,11 @@ pub fn to_rich_music(conn: &mut DbConnection, music: Music, user_id: i32) -> Res
         artists: artists,
         album_id: music.album_id,
         album_title: album.title,
-        is_favorited: user.favorite_musics.contains(&music.id)
+        is_favorited: user.favorite_musics.contains(&music.id),
+        youtube_id: music.youtube_id,
+        spotify_id: music.spotify_id,
+        deezer_id: music.deezer_id,
+        apple_music_id: music.apple_music_id
     };
     
     Ok(music_result)

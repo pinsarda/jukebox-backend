@@ -21,7 +21,11 @@ pub struct Music {
     pub id: i32,
     pub title: String,
     pub artists_ids: Vec<i32>,
-    pub album_id: i32
+    pub album_id: i32,
+    pub youtube_id: Option<String>,
+    pub spotify_id: Option<String>,
+    pub deezer_id: Option<String>,
+    pub apple_music_id: Option<String>
 }
 
 #[derive(Debug, Serialize, Deserialize, Insertable, QueryableByName, Queryable, Selectable, ToSchema)]
@@ -30,7 +34,11 @@ pub struct Music {
 pub struct NewMusic {
     pub title: String,
     pub artists_ids: Vec<i32>,
-    pub album_id: i32
+    pub album_id: i32,
+    pub youtube_id: Option<String>,
+    pub spotify_id: Option<String>,
+    pub deezer_id: Option<String>,
+    pub apple_music_id: Option<String>
 }
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
@@ -40,5 +48,9 @@ pub struct RichMusic {
     pub artists: Vec<RichArtist>,
     pub album_id: i32,
     pub album_title: String,
+    pub youtube_id: Option<String>,
+    pub spotify_id: Option<String>,
+    pub deezer_id: Option<String>,
+    pub apple_music_id: Option<String>,
     pub is_favorited: bool
 }

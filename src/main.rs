@@ -3,6 +3,7 @@ mod fetcher;
 mod schema;
 mod models;
 mod db_handlers;
+mod downloader;
 
 use std::error::Error;
 

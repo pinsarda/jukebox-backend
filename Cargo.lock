@@ -1770,6 +1770,7 @@ dependencies = [
  "serde",
  "serde_json",
  "tokio",
+ "url",
  "utoipa",
  "utoipa-actix-web",
  "utoipa-swagger-ui",

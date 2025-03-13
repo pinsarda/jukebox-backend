@@ -144,7 +144,7 @@ pub trait Fetcher {
 
     async fn add_single_music(&self, conn: &mut DbConnection, fetcher_music: &FetcherMusic, album_id: i32) -> Result<(), Error> {
 
-        let external_ids = self.get_external_ids(conn, fetcher_music).await.unwrap();
+        let external_ids = self.get_external_ids(fetcher_music).await.unwrap();
     
         let new_music = NewMusic {
             title: fetcher_music.title.clone(),
@@ -161,7 +161,7 @@ pub trait Fetcher {
         Ok(())
     }
 
-    async fn get_external_ids(&self, conn: &mut DbConnection, fetcher_music: &FetcherMusic) -> Result<ExternalIds, reqwest::Error> {
+    async fn get_external_ids(&self, fetcher_music: &FetcherMusic) -> Result<ExternalIds, reqwest::Error> {
 
         let url = String::from("https://api.musicapi.com/public/search");
     

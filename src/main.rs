@@ -13,13 +13,15 @@ use actix_web::cookie::time::Duration;
 use actix_web::cookie::Key;
 use actix_web::web::Data;
 use actix_web::{ App, HttpServer, middleware::Logger };
+use api::fetcher::{yt_music_add, yt_music_search};
+use api::search::{search, search_albums, search_artists, search_musics};
 use diesel::pg::Pg;
 use diesel::prelude::*;
 use diesel::r2d2::ConnectionManager;
 use diesel::r2d2::Pool;
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 
-use api::{player::{ play, stop, next, previous, state }, routes::{ download, hello }};
+use api::{player::{ play, stop, next, previous, state }};
 use api::user::{ login, signup, get_info };
 use api::music::{self, add_music};
 use api::album::{self, add_album};
@@ -78,9 +80,6 @@ async fn main() -> std::io::Result<()> {
             )
             .wrap(Logger::default())
             .into_utoipa_app()
-            // api routes (to be removed)
-            .service(hello)
-            .service(download)
             // user managment
             .service(signup)
             .service(login)
@@ -92,6 +91,14 @@ async fn main() -> std::io::Result<()> {
             .service(add_album)
             .service(artist::metadata)
             .service(add_artist)
+            // database search
+            .service(search_musics) 
+            .service(search_albums) 
+            .service(search_artists) 
+            .service(search) 
+            // fetching
+            .service(yt_music_add)
+            .service(yt_music_search)
             // player api
             .service(play)
             .service(stop)

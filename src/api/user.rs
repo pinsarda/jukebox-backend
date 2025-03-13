@@ -1,10 +1,10 @@
 use actix_identity::Identity;
 use actix_web::web::Json;
 use actix_web::{HttpRequest, HttpResponse, Responder, http::StatusCode};
-use actix_web::{ web::Data, Error, HttpMessage, Result, post, get };
-use crate::models::user::{ NewUser, User, UserData };
+use actix_web::{ web::Data, HttpMessage, Result, post, get };
+use crate::models::user::{ NewUser, UserData };
 use crate::DbPool;
-use crate::db_handlers::user::{ self, create_user, get_user, get_user_data, verify_password };
+use crate::db_handlers::user::{ create_user, get_user, get_user_data, verify_password };
 
 
 #[utoipa::path(

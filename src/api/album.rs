@@ -1,6 +1,6 @@
 use actix_identity::Identity;
 use actix_web::{ get, post, web::{Data, Json, Query}, Error, Result };
-use crate::{ db_handlers::album::{get_album_by_id, to_rich_album}, models::album::{RichAlbum, NewAlbum}};
+use crate::{ db_handlers::album::{get_album_by_id, to_rich_album}, models::album::{Album, NewAlbum, RichAlbum}};
 use crate::DbPool;
 use crate::models::Id;
 
@@ -23,7 +23,7 @@ async fn metadata(id: Identity, pool: Data<DbPool>, query_data: Query<Id>) -> Re
 #[utoipa::path()]
 #[post("/album/add")]
 /// Add an album to the database
-async fn add_album(_id: Identity, pool: Data<DbPool>, new_album: Json<NewAlbum>) -> Result<Json<NewAlbum>, Error> {
+async fn add_album(_id: Identity, pool: Data<DbPool>, new_album: Json<NewAlbum>) -> Result<Json<Album>, Error> {
 
     let conn = &mut pool.get().unwrap();
 

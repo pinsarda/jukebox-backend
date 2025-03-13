@@ -13,7 +13,11 @@ CREATE TABLE albums (
   title VARCHAR NOT NULL,
   artists_ids INTEGER[] NOT NULL,
   description TEXT,
-  youtube_id TEXT
+  fetcher TEXT,
+  youtube_id TEXT,
+  spotify_id TEXT,
+  deezer_id TEXT,
+  apple_music_id TEXT
 );
 
 CREATE TABLE musics (
@@ -21,7 +25,11 @@ CREATE TABLE musics (
   title VARCHAR NOT NULL,
   artists_ids INTEGER[] NOT NULL,
   album_id INTEGER NOT NULL,
+  fetcher TEXT,
   youtube_id TEXT,
+  spotify_id TEXT,
+  deezer_id TEXT,
+  apple_music_id TEXT,
 
   FOREIGN KEY (album_id) REFERENCES albums(id)
 );
@@ -29,5 +37,9 @@ CREATE TABLE musics (
 CREATE TABLE artists (
   id SERIAL PRIMARY KEY,
   name VARCHAR NOT NULL,
-  description TEXT
+  description TEXT,
+  youtube_id TEXT,
+  spotify_id TEXT,
+  deezer_id TEXT,
+  apple_music_id TEXT
 );

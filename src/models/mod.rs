@@ -3,6 +3,8 @@ pub mod music;
 pub mod album;
 pub mod artist;
 pub mod fetcher;
+pub mod errors;
+pub mod search;
 
 use serde::{Serialize, Deserialize};
 use utoipa::ToSchema;

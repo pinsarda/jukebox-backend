@@ -1,24 +1,36 @@
+
+
 use actix_identity::Identity;
 use actix_web::{ get, post, web::{Data, Json}, HttpResponse, Responder };
 
-use crate::{api::music, db_handlers::music::get_music_by_id, downloader::{download, get_music_path, is_music_downloaded}, models::Id, player::play_audio, DbPool};
+use crate::{db_handlers::music::get_music_by_id, models::Id, player::Player, DbPool};
+
+#[utoipa::path()]
+#[post("/player/add_to_queue")]
+/// Add music to queue
+async fn add_to_queue(_id: Identity, pool: Data<DbPool>, player: Data<Player>, query_data: Json<Id>) -> impl Responder {
+    let conn = &mut pool.get().unwrap();
+    
+    let music = get_music_by_id(conn, query_data.id).unwrap();
+    player.add_to_queue(music).await;
+
+    HttpResponse::Ok().body("Added music to queue")
+}
 
 #[utoipa::path()]
 #[post("/player/play")]
 /// Start playback of enqueued music
-async fn play(id: Identity, pool: Data<DbPool>, query_data: Json<Id>) -> impl Responder {
+async fn play(_id: Identity, player: Data<Player>) -> impl Responder {
+    player.play();
+    HttpResponse::Ok().body("Starting playback")
+}
 
-    let conn = &mut pool.get().unwrap();
-    
-    let music = get_music_by_id(conn, query_data.id).unwrap();
-
-    if !is_music_downloaded(&music) {
-        download(&music).await;
-    }
-
-    tokio::spawn(play_audio(get_music_path(&music)));
-
-    HttpResponse::Ok().body("Playing music")
+#[utoipa::path()]
+#[post("/player/pause")]
+/// Pause music playback
+async fn pause(_id: Identity, player: Data<Player>) -> impl Responder {
+    player.pause();
+    HttpResponse::Ok().body("Pausing music")
 }
 
 #[utoipa::path()]

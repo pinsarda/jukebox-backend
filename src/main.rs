@@ -16,6 +16,7 @@ use actix_web::cookie::Key;
 use actix_web::web::Data;
 use actix_web::{ App, HttpServer, middleware::Logger };
 use api::fetcher::{yt_music_add, yt_music_search};
+use api::player::{add_to_queue, pause};
 use api::search::{search, search_albums, search_artists, search_musics};
 use diesel::pg::Pg;
 use diesel::prelude::*;
@@ -28,8 +29,11 @@ use api::user::{ login, signup, get_info };
 use api::music::{self, add_music};
 use api::album::{self, add_album};
 use api::artist::{self, add_artist};
+use player::PlayerService;
 use utoipa_actix_web::AppExt;
 use utoipa_swagger_ui::SwaggerUi;
+
+use crate::player::Player;
 
 pub type DbPool = Pool<ConnectionManager<PgConnection>>;
 pub type DbConnection = PgConnection;
@@ -56,6 +60,12 @@ async fn main() -> std::io::Result<()> {
     dotenvy::dotenv().ok();
 
     let pool = get_connection_pool();
+
+    // Player service should only be initialized once on startup
+    // If player service is dropped, the playback stops
+    let player_service = PlayerService::new();
+    let player = Player::from(&player_service);
+
     let mut connection = pool.get().expect("Failed to get connection from pool");
 
     run_migrations(&mut connection).expect("Error running migration");
@@ -65,6 +75,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .app_data(Data::new(pool.clone()))
+            .app_data(Data::new(player.clone()))
             .wrap(IdentityMiddleware::builder()
                 .login_deadline(Some(std::time::Duration::from_secs(60 * 60 * 24 * 365)))
                 .build()
@@ -102,7 +113,9 @@ async fn main() -> std::io::Result<()> {
             .service(yt_music_add)
             .service(yt_music_search)
             // player api
+            .service(add_to_queue)
             .service(play)
+            .service(pause)
             .service(stop)
             .service(next)
             .service(previous)

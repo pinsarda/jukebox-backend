@@ -7,11 +7,7 @@ use crate::models::fetcher::{ExternalIds, FetcherAlbum, FetcherArtist, FetcherMu
 use crate::models::music::{Music, NewMusic};
 use crate::models::album::NewAlbum;
 use crate::models::artist::NewArtist;
-use crate::schema::albums::youtube_id;
-use crate::schema::musics;
 use crate::DbConnection;
-use actix_web::http::header::AUTHORIZATION;
-use diesel::expression::is_aggregate::No;
 use diesel::result::Error;
 use serde_json::json;
 use crate::models::errors::SearchError;

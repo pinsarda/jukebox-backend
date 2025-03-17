@@ -13,7 +13,7 @@ pub struct YoutubeVideo {
     pub title: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Identifiable, Associations, QueryableByName, Queryable, Selectable, ToSchema)]
+#[derive(Clone, Debug, Serialize, Deserialize, Identifiable, Associations, QueryableByName, Queryable, Selectable, ToSchema)]
 #[diesel(table_name = musics)]
 #[diesel(belongs_to(Album))]
 #[diesel(check_for_backend(diesel::pg::Pg))]

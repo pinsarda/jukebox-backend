@@ -29,7 +29,7 @@ use api::user::{ login, signup, get_info };
 use api::music::{self, add_music};
 use api::album::{self, add_album};
 use api::artist::{self, add_artist};
-use rodio::OutputStream;
+use rodio::{OutputStream, OutputStreamHandle};
 use utoipa_actix_web::AppExt;
 use utoipa_swagger_ui::SwaggerUi;
 
@@ -63,8 +63,21 @@ async fn main() -> std::io::Result<()> {
 
     // Player should only be initialized once on startup
     // If _stream is dropped, the playback stops
-    let (_stream, stream_handle) = OutputStream::try_default().unwrap();
-    let player = Player::new(stream_handle);
+    let player_disabled = std::env::var("PLAYER_DISABLED").unwrap_or("0".to_string());
+    let _stream: OutputStream;
+    let stream_handle: OutputStreamHandle;
+
+    let player = match player_disabled.as_str() {
+        "1" => {
+            Player::new_dummy()
+        },
+        _ => {
+            (_stream, stream_handle) = OutputStream::try_default().unwrap();
+            Player::new(stream_handle)
+        }
+    };
+    
+    
 
     let mut connection = pool.get().expect("Failed to get connection from pool");
 

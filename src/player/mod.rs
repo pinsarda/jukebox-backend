@@ -28,6 +28,16 @@ impl Player {
         }
     }
 
+    pub fn new_dummy() -> Player {
+        let sink = Arc::new(Mutex::new(Sink::new_idle().0));
+
+        Player {
+            queue_index: Arc::new(Mutex::new(0)),
+            queue: Arc::new(Mutex::new(Vec::new())),
+            sink: sink
+        }
+    }
+
     fn restart_sink(&self) {
         let queue_index = self.queue_index.lock().unwrap().clone();
         let queue = self.queue.lock().unwrap();

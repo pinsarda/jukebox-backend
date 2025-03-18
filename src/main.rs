@@ -7,6 +7,7 @@ mod downloader;
 mod player;
 
 use std::error::Error;
+use std::fs;
 
 use actix_identity::IdentityMiddleware;
 use actix_session::config::{CookieContentSecurity, PersistentSession};
@@ -60,6 +61,9 @@ async fn main() -> std::io::Result<()> {
     dotenvy::dotenv().ok();
 
     let pool = get_connection_pool();
+
+    let storage_path = &std::env::var("STORAGE_PATH").unwrap_or("Storage".to_string());
+    fs::create_dir_all(storage_path)?;
 
     // Player should only be initialized once on startup
     // If _stream is dropped, the playback stops

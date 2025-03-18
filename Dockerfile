@@ -1,4 +1,4 @@
-FROM rust:1.84 AS builder
+FROM rust:1.85 AS builder
 WORKDIR /jukebox
 COPY Cargo.toml Cargo.lock ./
 RUN cargo fetch
@@ -14,7 +14,7 @@ FROM debian:bookworm-slim
 WORKDIR /jukebox
 
 RUN apt update
-RUN apt install -y libasound2 libpq5
+RUN apt install -y libasound2 libpq5 ca-certificates yt-dlp
 EXPOSE 8080
 COPY --from=builder /jukebox/target/release/jukebox/ /jukebox
 

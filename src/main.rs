@@ -5,6 +5,7 @@ mod models;
 mod db_handlers;
 mod downloader;
 mod player;
+mod tests;
 
 use std::error::Error;
 use std::fs;

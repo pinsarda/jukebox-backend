@@ -3,7 +3,13 @@ use actix_web::{ get, web::{Data, Json, Query}, Error, Result };
 use crate::models::{album::RichAlbum, artist::RichArtist, music::RichMusic, search::{SearchQuery, SearchResult}};
 use crate::DbPool;
 
-#[utoipa::path()]
+#[utoipa::path(
+    request_body = SearchQuery,
+    responses(
+        (status = OK, body = Vec<RichMusic>),
+        (status = FORBIDDEN)
+    )
+)]
 #[get("/search_musics")]
 /// Get search results of a query
 async fn search_musics(id: Identity, pool: Data<DbPool>, query_data: Query<SearchQuery>) -> Result<Json<Vec<RichMusic>>, Error> {
@@ -17,7 +23,13 @@ async fn search_musics(id: Identity, pool: Data<DbPool>, query_data: Query<Searc
     Ok(Json(result))
 }
 
-#[utoipa::path()]
+#[utoipa::path(
+    request_body = SearchQuery,
+    responses(
+        (status = OK, body = Vec<RichMusic>),
+        (status = FORBIDDEN)
+    )
+)]
 #[get("/search_albums")]
 /// Get search results of a query
 async fn search_albums(id: Identity, pool: Data<DbPool>, query_data: Query<SearchQuery>) -> Result<Json<Vec<RichAlbum>>, Error> {
@@ -31,7 +43,13 @@ async fn search_albums(id: Identity, pool: Data<DbPool>, query_data: Query<Searc
     Ok(Json(result))
 }
 
-#[utoipa::path()]
+#[utoipa::path(
+    request_body = SearchQuery,
+    responses(
+        (status = OK, body = Vec<RichMusic>),
+        (status = FORBIDDEN)
+    )
+)]
 #[get("/search_artists")]
 /// Get search results of a query
 async fn search_artists(id: Identity, pool: Data<DbPool>, query_data: Query<SearchQuery>) -> Result<Json<Vec<RichArtist>>, Error> {
@@ -45,7 +63,13 @@ async fn search_artists(id: Identity, pool: Data<DbPool>, query_data: Query<Sear
     Ok(Json(result))
 }
 
-#[utoipa::path()]
+#[utoipa::path(
+    request_body = SearchQuery,
+    responses(
+        (status = OK, body = SearchResult),
+        (status = FORBIDDEN)
+    )
+)]
 #[get("/search")]
 /// Get search results of a query
 async fn search(id: Identity, pool: Data<DbPool>, query_data: Query<SearchQuery>) -> Result<Json<SearchResult>, Error> {

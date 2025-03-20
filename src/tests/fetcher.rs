@@ -16,7 +16,8 @@ async fn get_album_by_music_data() {
             FetcherArtist {
                 name: "Queen".to_string(),
                 fetcher_id: None,
-            }])
+            }]),
+        thumb_url: None
     }).await.unwrap();
     assert_eq!(
         result.title.as_str(),
@@ -36,7 +37,8 @@ async fn get_external_ids() {
             FetcherArtist {
                 name: "Queen".to_string(),
                 fetcher_id: None,
-            }])
+            }]),
+        thumb_url: None
     }).await.unwrap();
     assert_eq!(
         result,

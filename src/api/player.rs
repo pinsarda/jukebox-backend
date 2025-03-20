@@ -1,9 +1,7 @@
-
-
 use actix_identity::Identity;
-use actix_web::{ get, post, web::{Data, Json}, HttpResponse, Responder };
+use actix_web::{ get, http::Error, post, web::{Data, Json}, HttpResponse, Responder };
 
-use crate::{db_handlers::music::get_music_by_id, models::Id, player::Player, DbPool};
+use crate::{db_handlers::music::{get_music_by_id, to_rich_music}, models::{player::{PlayerState, RichPlayerState}, Id}, player::Player, DbPool};
 
 #[utoipa::path(
     request_body = Id,
@@ -101,14 +99,27 @@ async fn seek() -> impl Responder {
 
 #[utoipa::path(
     responses(
-        (status = OK),
+        (status = OK, body=RichPlayerState),
         (status = FORBIDDEN)
     )
 )]
 #[get("/player/state")]
 /// Get player state
-async fn state() -> impl Responder {
-    HttpResponse::Ok().body("Not implemented")
+async fn state(id: Identity, pool: Data<DbPool>, player: Data<Player>) -> Result<Json<RichPlayerState>, Error> {
+    let player_state = player.get_state();
+
+    let user_id = id.id().unwrap().parse::<i32>().unwrap();
+    let conn = &mut pool.get().unwrap();
+
+    let rich_player_state = RichPlayerState {
+        queue: player_state.queue.into_iter().map(|music| {
+                to_rich_music(conn, music, user_id).unwrap()
+            }).collect(),
+        queue_index: player_state.queue_index,
+        is_playing: player_state.is_playing
+    };
+
+    Ok(Json(rich_player_state))
 }
 
 // TODO : add /player/socket for live update on all clients

@@ -9,11 +9,13 @@ use source::SourceWithFn;
 
 use crate::downloader::{download, get_music_path, is_music_downloaded};
 use crate::models::music::Music;
+use crate::models::player::PlayerState;
 
 #[derive(Clone)]
 pub struct Player {
     queue_index: Arc<Mutex<i32>>,
     queue: Arc<Mutex<Vec<Music>>>,
+    is_playing: Arc<Mutex<bool>>,
     sink: Arc<Mutex<Sink>>
 }
 
@@ -24,6 +26,7 @@ impl Player {
         Player {
             queue_index: Arc::new(Mutex::new(0)),
             queue: Arc::new(Mutex::new(Vec::new())),
+            is_playing: Arc::new(Mutex::new(false)),
             sink: sink
         }
     }
@@ -34,6 +37,7 @@ impl Player {
         Player {
             queue_index: Arc::new(Mutex::new(0)),
             queue: Arc::new(Mutex::new(Vec::new())),
+            is_playing: Arc::new(Mutex::new(false)),
             sink: sink
         }
     }
@@ -53,6 +57,8 @@ impl Player {
         let wrapped_source = SourceWithFn::wrap(source, move || { self_clone.on_music_finished() });
         sink.append(wrapped_source);
         sink.play();
+        let mut is_playing = self.is_playing.lock().unwrap();
+        *is_playing = true;
     }
     
     fn on_music_finished(&self) {
@@ -89,11 +95,14 @@ impl Player {
 
     pub fn pause(&self) {
         self.sink.lock().unwrap().pause();
+        let mut is_playing = self.is_playing.lock().unwrap();
+        *is_playing = false;
     }
 
     pub fn play(&self) {
-        let sink = self.sink.lock().unwrap();
-        sink.play();
+        self.sink.lock().unwrap().play();
+        let mut is_playing = self.is_playing.lock().unwrap();
+        *is_playing = true;
     }
 
     pub fn next(&self) {
@@ -134,12 +143,23 @@ impl Player {
         self.restart_sink();
     }
 
-    pub fn get_status(&self) -> i32 {
-        let index = self.queue_index.lock().unwrap();
-        index.clone()
+    pub fn get_state(&self) -> PlayerState {
+        PlayerState {
+            queue: self.get_queue(),
+            queue_index: self.get_queue_index(),
+            is_playing: self.get_is_playing()
+        }
     }
 
     pub fn get_queue(&self) -> Vec<Music> {
         self.queue.lock().unwrap().clone()
+    }
+
+    pub fn get_queue_index(&self) -> i32 {
+        self.queue_index.lock().unwrap().clone()
+    }
+
+    pub fn get_is_playing(&self) -> bool {
+        self.is_playing.lock().unwrap().clone()
     }
 }

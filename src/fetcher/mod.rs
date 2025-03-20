@@ -3,7 +3,7 @@ pub mod ytmusic;
 use std::path::Path;
 use crate::db_handlers::album::get_album_by_title;
 use crate::db_handlers::artist::get_artist_by_name;
-use crate::models::fetcher::{ExternalIds, FetcherAlbum, FetcherArtist, FetcherMusic, FetcherQueryData, FetcherSearchResult};
+use crate::models::fetcher::{ExternalIds, FetcherAlbum, FetcherArtist, FetcherMusic, FetcherSearchResult};
 use crate::models::music::{Music, NewMusic};
 use crate::models::album::NewAlbum;
 use crate::models::artist::NewArtist;
@@ -60,7 +60,7 @@ pub trait Fetcher {
     }
 
     fn download(&self, music: Music, path: &Path) -> Result<(), actix_web::Error>;
-    async fn get_album_by_query_data(&self, fetcher_music_data: &FetcherQueryData) -> Result<FetcherAlbum, actix_web::Error>;
+    async fn get_album_by_music_data(&self, fetcher_music_data: &FetcherMusic) -> Result<FetcherAlbum, actix_web::Error>;
 
     fn disambiguate_album(&self, conn: &mut DbConnection, fetcher_album: &FetcherAlbum) -> Result<i32, Error> {
         let existing_album_result = get_album_by_title(conn, fetcher_album.title.clone());
@@ -106,8 +106,8 @@ pub trait Fetcher {
         Ok(0)
     }
 
-    async fn add_music_with_album(&self, conn: &mut DbConnection, fetcher_music_data: &FetcherQueryData) -> Result<(), SearchError> {
-        let fetcher_album = self.get_album_by_query_data(fetcher_music_data).await.unwrap();
+    async fn add_music_with_album(&self, conn: &mut DbConnection, fetcher_music_data: &FetcherMusic) -> Result<(), SearchError> {
+        let fetcher_album = self.get_album_by_music_data(fetcher_music_data).await.unwrap();
 
         self.add_album(conn, &fetcher_album).await
     }

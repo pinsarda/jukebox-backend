@@ -1,18 +1,22 @@
-use crate::{fetcher::{ytmusic::YtMusicFetcher, Fetcher}, models::fetcher::{ExternalIds, FetcherArtist, FetcherMusic, FetcherQueryData}};
+use crate::{fetcher::{ytmusic::YtMusicFetcher, Fetcher}, models::fetcher::{ExternalIds, FetcherArtist, FetcherMusic}};
 
 fn setup() {
     dotenvy::dotenv().ok();
 }
 
 #[tokio::test]
-async fn get_album_by_query_data() {
+async fn get_album_by_music_data() {
     setup();
     let fetcher = YtMusicFetcher::new();
-    let result = fetcher.get_album_by_query_data(&FetcherQueryData {
+    let result = fetcher.get_album_by_music_data(&FetcherMusic {
         fetcher_id: None,
         title: "Don't Stop Me Now".to_string(),
         album_title: "Jazz".to_string(),
-        artist_name: "Queen".to_string()
+        artists: Vec::from([
+            FetcherArtist {
+                name: "Queen".to_string(),
+                fetcher_id: None,
+            }])
     }).await.unwrap();
     assert_eq!(
         result.title.as_str(),
@@ -27,12 +31,12 @@ async fn get_external_ids() {
     let result = fetcher.get_external_ids(&FetcherMusic {
         fetcher_id: None,
         title: "Don't Stop Me Now".to_string(),
+        album_title: "Jazz".to_string(),
         artists: Vec::from([
             FetcherArtist {
+                name: "Queen".to_string(),
                 fetcher_id: None,
-                name: "Queen".to_string()
-            }
-        ])
+            }])
     }).await.unwrap();
     assert_eq!(
         result,

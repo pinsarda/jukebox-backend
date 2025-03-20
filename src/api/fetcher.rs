@@ -1,20 +1,32 @@
 use actix_web::{ get, post, web::{Data, Json, Query}, HttpResponse, Responder };
 use utoipa::ToSchema;
-use crate::{fetcher::{ytmusic::YtMusicFetcher, Fetcher}, models::{fetcher::FetcherQueryData, search::SearchQuery}, DbPool};
+use crate::{fetcher::{ytmusic::YtMusicFetcher, Fetcher}, models::{fetcher::FetcherMusic, search::SearchQuery}, DbPool};
 
-#[utoipa::path()]
+#[utoipa::path(
+    request_body = SearchQuery,
+    responses(
+        (status = OK, body = Vec<FetcherMusic>),
+        (status = FORBIDDEN)
+    )
+)]
 #[get("/fetcher/ytmusic/search")]
 /// Get search results from Youtube Music
 async fn yt_music_search(pool: Data<DbPool>, data: Query<SearchQuery>) -> impl Responder {
-    let results = YtMusicFetcher::new().search(data.query.clone()).await;
+    let results = YtMusicFetcher::new().search_musics(data.query.clone()).await;
 
     HttpResponse::Ok().json(results)
 }
 
-#[utoipa::path()]
+#[utoipa::path(
+    request_body = FetcherMusic,
+    responses(
+        (status = OK),
+        (status = FORBIDDEN)
+    )
+)]
 #[post("/fetcher/ytmusic/add")]
 /// Add a music from youtube music
-async fn yt_music_add(pool: Data<DbPool>, data: Json<FetcherQueryData>) -> impl Responder {
+async fn yt_music_add(pool: Data<DbPool>, data: Json<FetcherMusic>) -> impl Responder {
     let conn = &mut pool.get().unwrap();
 
     match YtMusicFetcher::new().add_music_with_album(conn, &data).await {

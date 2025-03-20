@@ -2,7 +2,7 @@ use ytmapi_rs::{auth::BrowserToken, common::YoutubeID, parse::ParsedSongArtist, 
 
 use crate::fetcher::Fetcher;
 use crate::models::fetcher::ExternalIds;
-use crate::models::{fetcher::{FetcherAlbum, FetcherArtist, FetcherMusic, FetcherQueryData}, music::Music};
+use crate::models::{fetcher::{FetcherAlbum, FetcherArtist, FetcherMusic}, music::Music};
 
 pub struct YtMusicFetcher {
     id: String,
@@ -39,6 +39,7 @@ impl Fetcher for YtMusicFetcher {
             FetcherMusic {
                 fetcher_id: Some(String::from(music.video_id.get_raw())),
                 title: music.title.clone(),
+                album_title: music.album.clone().unwrap_or("".to_string()),
                 artists: Vec::from([
                     FetcherArtist {
                         fetcher_id: None,
@@ -88,11 +89,10 @@ impl Fetcher for YtMusicFetcher {
         Ok(())
     }
 
-    async fn get_album_by_query_data(&self, fetcher_data: &FetcherQueryData) -> Result<FetcherAlbum, actix_web::Error> {
+    async fn get_album_by_music_data(&self, fetcher_music: &FetcherMusic) -> Result<FetcherAlbum, actix_web::Error> {
         let yt = get_yt_music().await;
         
-        let music = yt.search_songs(format!("{} {}", fetcher_data.title, fetcher_data.artist_name)).await.unwrap()[0].to_owned();
-        let album_search = yt.search_albums(format!("{} {}", music.album.unwrap(), music.artist)).await.unwrap()[0].to_owned();
+        let album_search = yt.search_albums(format!("{} {}", fetcher_music.album_title, fetcher_music.artists[0].name)).await.unwrap()[0].to_owned();
         let album = yt.get_album(album_search.album_id).await.unwrap();
 
         let artists = self.artists_result_to_fetcher_artists(album.artists);
@@ -101,6 +101,7 @@ impl Fetcher for YtMusicFetcher {
             FetcherMusic {
                 fetcher_id: Some(String::from(music.video_id.get_raw())),
                 title: music.title.clone(),
+                album_title: album.title.clone(),
                 artists: artists.clone()
             }
         ).collect::<Vec<FetcherMusic>>();

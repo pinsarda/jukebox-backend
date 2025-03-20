@@ -96,6 +96,44 @@ impl Player {
         sink.play();
     }
 
+    pub fn next(&self) {
+
+        let mut queue_index = self.queue_index.lock().unwrap();
+        let queue = self.queue.lock().unwrap();
+        if *queue_index < queue.len() as i32 - 1 {
+            *queue_index += 1;
+        } else {
+            *queue_index = 0;
+        }
+        drop(queue);
+        drop(queue_index);
+
+        let sink = self.sink.lock().unwrap();
+        sink.clear();
+        drop(sink);
+
+        self.restart_sink();
+    }
+
+    pub fn previous(&self) {
+
+        let mut queue_index = self.queue_index.lock().unwrap();
+        if *queue_index > 0 {
+            *queue_index -= 1;
+        } else {
+            let queue = self.queue.lock().unwrap();
+            *queue_index = queue.len() as i32 - 1;
+            drop(queue);
+        }
+        drop(queue_index);
+
+        let sink = self.sink.lock().unwrap();
+        sink.clear();
+        drop(sink);
+
+        self.restart_sink();
+    }
+
     pub fn get_status(&self) -> i32 {
         let index = self.queue_index.lock().unwrap();
         index.clone()

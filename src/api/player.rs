@@ -69,8 +69,9 @@ async fn stop() -> impl Responder {
 )]
 #[post("/player/next")]
 /// Skip to next music in queue
-async fn next() -> impl Responder {
-    HttpResponse::Ok().body("Not implemented")
+async fn next(_id: Identity, player: Data<Player>) -> impl Responder {
+    player.next();
+    HttpResponse::Ok().body("Skipping to next song in queue")
 }
 
 #[utoipa::path(
@@ -81,8 +82,9 @@ async fn next() -> impl Responder {
 )]
 #[post("/player/previous")]
 /// Skip to previous music in queue
-async fn previous() -> impl Responder {
-    HttpResponse::Ok().body("Not implemented")
+async fn previous(_id: Identity, player: Data<Player>) -> impl Responder {
+    player.previous();
+    HttpResponse::Ok().body("Skipping to previous song in queue")
 }
 
 #[utoipa::path(

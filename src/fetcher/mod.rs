@@ -60,7 +60,7 @@ pub trait Fetcher {
     }
 
     fn download(&self, music: Music, path: &Path) -> Result<(), actix_web::Error>;
-    async fn get_album_by_music_data(&self, fetcher_music_data: &FetcherMusic) -> Result<FetcherAlbum, actix_web::Error>;
+    async fn get_album_by_music_data(&self, fetcher_music_data: &FetcherMusic) -> Result<FetcherAlbum, SearchError>;
 
     fn disambiguate_album(&self, conn: &mut DbConnection, fetcher_album: &FetcherAlbum) -> Result<i32, Error> {
         let existing_album_result = get_album_by_title(conn, fetcher_album.title.clone());

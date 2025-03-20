@@ -1,6 +1,8 @@
+use actix_web::http::Error;
 use ytmapi_rs::{auth::BrowserToken, common::YoutubeID, parse::ParsedSongArtist, YtMusic};
 
 use crate::fetcher::Fetcher;
+use crate::models::errors::SearchError;
 use crate::models::fetcher::ExternalIds;
 use crate::models::{fetcher::{FetcherAlbum, FetcherArtist, FetcherMusic}, music::Music};
 
@@ -24,7 +26,10 @@ impl YtMusicFetcher {
     fn artists_result_to_fetcher_artists(&self, artists: Vec<ParsedSongArtist>) -> Vec<FetcherArtist> {
         artists.iter().map(|artist|
             FetcherArtist {
-                fetcher_id: Some(artist.id.clone().unwrap().get_raw().to_string()),
+                fetcher_id: match artist.id.clone() {
+                    Some(id) => Some(id.get_raw().to_string()),
+                    None => None,
+                },
                 name: artist.name.to_string()
             }
         ).collect::<Vec<FetcherArtist>>()
@@ -89,11 +94,19 @@ impl Fetcher for YtMusicFetcher {
         Ok(())
     }
 
-    async fn get_album_by_music_data(&self, fetcher_music: &FetcherMusic) -> Result<FetcherAlbum, actix_web::Error> {
+    async fn get_album_by_music_data(&self, fetcher_music: &FetcherMusic) -> Result<FetcherAlbum, SearchError> {
         let yt = get_yt_music().await;
+
+        print!("{}", format!("{} {}", fetcher_music.album_title, fetcher_music.artists[0].name));
         
-        let album_search = yt.search_albums(format!("{} {}", fetcher_music.album_title, fetcher_music.artists[0].name)).await.unwrap()[0].to_owned();
-        let album = yt.get_album(album_search.album_id).await.unwrap();
+        let album_search = yt.search_albums(format!("{} {}", fetcher_music.album_title, fetcher_music.artists[0].name)).await;
+
+        if album_search.is_err() {
+            print!("{:#?}", album_search);
+            return Err(SearchError::new("Couldn't find album on youtube"));
+        }
+
+        let album = yt.get_album(&album_search.unwrap()[0].album_id).await.unwrap();
 
         let artists = self.artists_result_to_fetcher_artists(album.artists);
 

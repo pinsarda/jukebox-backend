@@ -10,6 +10,7 @@ mod tests;
 use std::error::Error;
 use std::fs;
 
+use actix_files::Files;
 use actix_identity::IdentityMiddleware;
 use actix_session::config::{CookieContentSecurity, PersistentSession};
 use actix_session::{ SessionMiddleware, storage::CookieSessionStore };
@@ -63,8 +64,8 @@ async fn main() -> std::io::Result<()> {
 
     let pool = get_connection_pool();
 
-    let storage_path = &std::env::var("STORAGE_PATH").unwrap_or("Storage".to_string());
-    fs::create_dir_all(storage_path)?;
+    let storage_path = std::env::var("STORAGE_PATH").unwrap_or("Storage".to_string()).clone();
+    fs::create_dir_all(&storage_path)?;
 
     // Player should only be initialized once on startup
     // If _stream is dropped, the playback stops
@@ -110,6 +111,7 @@ async fn main() -> std::io::Result<()> {
                 .build()
             )
             .wrap(Logger::default())
+            .service(Files::new("/static", storage_path.to_string()).prefer_utf8(true))
             .into_utoipa_app()
             // user managment
             .service(signup)

@@ -1,5 +1,7 @@
 pub mod ytmusic;
 
+use std::fs::{self, File};
+use std::io::{self, Cursor, Read};
 use std::path::Path;
 use crate::db_handlers::album::get_album_by_title;
 use crate::db_handlers::artist::get_artist_by_name;
@@ -112,6 +114,19 @@ pub trait Fetcher {
         self.add_album(conn, &fetcher_album).await
     }
 
+    async fn download_thumb(&self, url: &str, dest: &Path) {
+
+        print!("{}", url);
+
+        let resp = reqwest::get(url).await.expect("Couldn't get thumbnail from provider");
+        let body = resp.bytes().await.expect("Thumbnail request body invalid");
+        fs::create_dir_all(&dest).unwrap();
+        let mut out = File::create(dest.join("cover.jpg")).expect("Failed to create thumbnail file");
+        let mut cursor = Cursor::new(body);
+        io::copy(&mut cursor, &mut out).expect("Failed to copy thumbnail content");
+
+    }
+
     async fn add_album(&self, conn: &mut DbConnection, fetcher_album: &FetcherAlbum) -> Result<(), SearchError> {
     
         let new_album_id = match self.disambiguate_album(conn, &fetcher_album) {
@@ -131,6 +146,14 @@ pub trait Fetcher {
                 Ok(added_album.id)
             }
         }?;
+
+        if fetcher_album.thumb_url.is_some() {
+
+            let base_path = &std::env::var("STORAGE_PATH").unwrap_or("Storage".to_string());
+            let dest = Path::new(base_path).join(new_album_id.to_string());
+
+            self.download_thumb(fetcher_album.thumb_url.clone().unwrap().clone().as_str(), &dest).await;
+        }
 
         for fetcher_music in &fetcher_album.musics {
             self.add_single_music(conn, fetcher_music, new_album_id).await.expect("Error inserting music for album");

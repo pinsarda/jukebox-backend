@@ -116,8 +116,6 @@ pub trait Fetcher {
 
     async fn download_thumb(&self, url: &str, dest: &Path) {
 
-        print!("{}", url);
-
         let resp = reqwest::get(url).await.expect("Couldn't get thumbnail from provider");
         let body = resp.bytes().await.expect("Thumbnail request body invalid");
         fs::create_dir_all(&dest).unwrap();

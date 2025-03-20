@@ -1,5 +1,8 @@
 use actix_web::http::Error;
 use ytmapi_rs::{auth::BrowserToken, common::YoutubeID, parse::ParsedSongArtist, YtMusic};
+use std::fs::{self, File};
+use std::io::{self, Cursor, Read};
+use std::path::Path;
 
 use crate::fetcher::Fetcher;
 use crate::models::errors::SearchError;
@@ -109,19 +112,15 @@ impl Fetcher for YtMusicFetcher {
     async fn get_album_by_music_data(&self, fetcher_music: &FetcherMusic) -> Result<FetcherAlbum, SearchError> {
         let yt = get_yt_music().await;
 
-        print!("{}", format!("{} {}", fetcher_music.album_title, fetcher_music.artists[0].name));
-        
         let album_search_result = yt.search_albums(format!("{} {}", fetcher_music.album_title, fetcher_music.artists[0].name)).await;
 
         if album_search_result.is_err() {
-            print!("{:#?}", album_search_result);
             return Err(SearchError::new("Error while getting album from youtube"));
         }
 
         let album_search = album_search_result.unwrap();
 
         if album_search.len().clone() == 0 {
-            print!("{:#?}", album_search);
             return Err(SearchError::new("No result after search on youtube"));
         }
 
@@ -134,8 +133,8 @@ impl Fetcher for YtMusicFetcher {
                 album_title: album.title.clone(),
                 artists: artists.clone(),
                 thumb_url: 
-                    if album.thumbnails.len() > 0 {
-                        Some(album.thumbnails[0].url.clone())
+                    if fetcher_music.thumb_url.is_some() {
+                        Some(fetcher_music.thumb_url.clone().unwrap())
                     } else {
                         None
                     },
@@ -147,11 +146,12 @@ impl Fetcher for YtMusicFetcher {
             title: album.title,
             musics: musics,
             artists: artists.clone(),
-            thumb_url: 
-                if album.thumbnails.len() > 0 {
-                    Some(album.thumbnails[0].url.clone())
-                } else {
-                    None
+            thumb_url: {
+                    // Dirty workaround to have full size album images 
+                    let mut split = fetcher_music.thumb_url.as_ref().unwrap().split('=');
+                    let mut big_thumb_utl = split.next().unwrap().to_owned();
+                    big_thumb_utl.push_str("=w3000-h3000-l3000-rj");
+                    Some(big_thumb_utl)
                 },
         })
     }

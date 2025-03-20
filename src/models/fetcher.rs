@@ -6,7 +6,8 @@ pub struct FetcherMusic {
     pub fetcher_id: Option<String>,
     pub title: String,
     pub album_title: String,
-    pub artists: Vec<FetcherArtist>
+    pub artists: Vec<FetcherArtist>,
+    pub thumb_url: Option<String>
 }
 
 #[derive(Clone, Serialize, Deserialize, ToSchema, Debug)]
@@ -14,7 +15,8 @@ pub struct FetcherAlbum {
     pub fetcher_id: Option<String>,
     pub title: String,
     pub musics: Vec<FetcherMusic>,
-    pub artists: Vec<FetcherArtist>
+    pub artists: Vec<FetcherArtist>,
+    pub thumb_url: Option<String>
 }
 
 #[derive(Clone, Serialize, Deserialize, ToSchema, Debug)]

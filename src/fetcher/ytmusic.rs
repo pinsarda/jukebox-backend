@@ -50,7 +50,13 @@ impl Fetcher for YtMusicFetcher {
                         fetcher_id: None,
                         name: music.artist.clone() 
                     }
-                ])
+                ]),
+                thumb_url: 
+                    if music.thumbnails.len() > 0 {
+                        Some(music.thumbnails[0].url.clone())
+                    } else {
+                        None
+                    }                
             }
         ).collect::<Vec<FetcherMusic>>();
         musics
@@ -68,6 +74,12 @@ impl Fetcher for YtMusicFetcher {
                             fetcher_id: None,
                             name: album.artist.clone() 
                     }]),
+                    thumb_url: 
+                        if album.thumbnails.len() > 0 {
+                            Some(album.thumbnails[0].url.clone())
+                        } else {
+                            None
+                        },
                     // The API makes it hard to search with musics efficiently
                     // Musics are correctly registered when adding music to library
                     musics: Vec::new()
@@ -99,23 +111,34 @@ impl Fetcher for YtMusicFetcher {
 
         print!("{}", format!("{} {}", fetcher_music.album_title, fetcher_music.artists[0].name));
         
-        let album_search = yt.search_albums(format!("{} {}", fetcher_music.album_title, fetcher_music.artists[0].name)).await;
+        let album_search_result = yt.search_albums(format!("{} {}", fetcher_music.album_title, fetcher_music.artists[0].name)).await;
 
-        if album_search.is_err() {
-            print!("{:#?}", album_search);
-            return Err(SearchError::new("Couldn't find album on youtube"));
+        if album_search_result.is_err() {
+            print!("{:#?}", album_search_result);
+            return Err(SearchError::new("Error while getting album from youtube"));
         }
 
-        let album = yt.get_album(&album_search.unwrap()[0].album_id).await.unwrap();
+        let album_search = album_search_result.unwrap();
 
+        if album_search.len().clone() == 0 {
+            print!("{:#?}", album_search);
+            return Err(SearchError::new("No result after search on youtube"));
+        }
+
+        let album = yt.get_album(&album_search[0].album_id).await.unwrap();
         let artists = self.artists_result_to_fetcher_artists(album.artists);
-
         let musics = album.tracks.iter().map(|music|
             FetcherMusic {
                 fetcher_id: Some(String::from(music.video_id.get_raw())),
                 title: music.title.clone(),
                 album_title: album.title.clone(),
-                artists: artists.clone()
+                artists: artists.clone(),
+                thumb_url: 
+                    if album.thumbnails.len() > 0 {
+                        Some(album.thumbnails[0].url.clone())
+                    } else {
+                        None
+                    },
             }
         ).collect::<Vec<FetcherMusic>>();
 
@@ -124,6 +147,12 @@ impl Fetcher for YtMusicFetcher {
             title: album.title,
             musics: musics,
             artists: artists.clone(),
+            thumb_url: 
+                if album.thumbnails.len() > 0 {
+                    Some(album.thumbnails[0].url.clone())
+                } else {
+                    None
+                },
         })
     }
 

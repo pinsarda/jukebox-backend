@@ -147,11 +147,15 @@ impl Fetcher for YtMusicFetcher {
             musics: musics,
             artists: artists.clone(),
             thumb_url: {
-                    // Dirty workaround to have full size album images 
-                    let mut split = fetcher_music.thumb_url.as_ref().unwrap().split('=');
-                    let mut big_thumb_utl = split.next().unwrap().to_owned();
-                    big_thumb_utl.push_str("=w3000-h3000-l3000-rj");
-                    Some(big_thumb_utl)
+                    if fetcher_music.thumb_url.is_some() {
+                        // Dirty workaround to have full size album images 
+                        let mut split = fetcher_music.thumb_url.as_ref().unwrap().split('=');
+                        let mut big_thumb_utl = split.next().unwrap().to_owned();
+                        big_thumb_utl.push_str("=w3000-h3000-l3000-rj");
+                        Some(big_thumb_utl)
+                    } else {
+                        None
+                    }
                 },
         })
     }

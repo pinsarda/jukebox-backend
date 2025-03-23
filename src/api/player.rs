@@ -1,5 +1,8 @@
+use std::sync::Mutex;
+use actix_ws::{AggregatedMessage, Session};
+use futures_util::StreamExt as _;
 use actix_identity::Identity;
-use actix_web::{ get, http::Error, post, web::{Data, Json}, HttpResponse, Responder };
+use actix_web::{ get, Error, post, web::{self, Data, Json, Payload}, HttpRequest, HttpResponse, Responder };
 
 use crate::{db_handlers::music::{get_music_by_id, to_rich_music}, models::{player::{PlayerState, RichPlayerState}, Id}, player::Player, DbPool};
 
@@ -29,8 +32,9 @@ async fn add_to_queue(_id: Identity, pool: Data<DbPool>, player: Data<Player>, q
 )]
 #[post("/player/play")]
 /// Start playback of enqueued music
-async fn play(_id: Identity, player: Data<Player>) -> impl Responder {
+async fn play(_id: Identity, player: Data<Player>, socket_sessions: Data<Mutex<Vec<Session>>>) -> impl Responder {
     player.play();
+    notify_sessions(socket_sessions, String::from("playing")).await;
     HttpResponse::Ok().body("Starting playback")
 }
 
@@ -42,8 +46,9 @@ async fn play(_id: Identity, player: Data<Player>) -> impl Responder {
 )]
 #[post("/player/pause")]
 /// Pause music playback
-async fn pause(_id: Identity, player: Data<Player>) -> impl Responder {
+async fn pause(_id: Identity, player: Data<Player>, socket_sessions: Data<Mutex<Vec<Session>>>) -> impl Responder {
     player.pause();
+    notify_sessions(socket_sessions, String::from("pausing")).await;
     HttpResponse::Ok().body("Pausing music")
 }
 
@@ -67,8 +72,9 @@ async fn stop() -> impl Responder {
 )]
 #[post("/player/next")]
 /// Skip to next music in queue
-async fn next(_id: Identity, player: Data<Player>) -> impl Responder {
+async fn next(_id: Identity, player: Data<Player>, socket_sessions: Data<Mutex<Vec<Session>>>) -> impl Responder {
     player.next();
+    notify_sessions(socket_sessions, String::from("next")).await;
     HttpResponse::Ok().body("Skipping to next song in queue")
 }
 
@@ -80,8 +86,9 @@ async fn next(_id: Identity, player: Data<Player>) -> impl Responder {
 )]
 #[post("/player/previous")]
 /// Skip to previous music in queue
-async fn previous(_id: Identity, player: Data<Player>) -> impl Responder {
+async fn previous(_id: Identity, player: Data<Player>, socket_sessions: Data<Mutex<Vec<Session>>>) -> impl Responder {
     player.previous();
+    notify_sessions(socket_sessions, String::from("previous")).await;
     HttpResponse::Ok().body("Skipping to previous song in queue")
 }
 
@@ -122,4 +129,18 @@ async fn state(id: Identity, pool: Data<DbPool>, player: Data<Player>) -> Result
     Ok(Json(rich_player_state))
 }
 
-// TODO : add /player/socket for live update on all clients
+#[utoipa::path()]
+#[get("/player/socket")]
+async fn socket(req: HttpRequest, stream: web::Payload, socket_sessions: Data<Mutex<Vec<Session>>>) -> Result<HttpResponse, Error> {
+    let (res, session, _stream) = actix_ws::handle(&req, stream)?;
+
+    socket_sessions.lock().unwrap().push(session.clone());
+    
+    Ok(res)
+}
+
+async fn notify_sessions(socket_sessions: Data<Mutex<Vec<Session>>>, message: String) {
+    for session in socket_sessions.lock().unwrap().iter() {
+        session.clone().text(message.clone()).await.unwrap();
+    }
+}

@@ -9,6 +9,7 @@ mod tests;
 
 use std::error::Error;
 use std::fs;
+use std::sync::Mutex;
 
 use actix_files::Files;
 use actix_identity::IdentityMiddleware;
@@ -18,6 +19,7 @@ use actix_web::cookie::time::Duration;
 use actix_web::cookie::Key;
 use actix_web::web::Data;
 use actix_web::{ App, HttpServer, middleware::Logger };
+use actix_ws::Session;
 use api::fetcher::{yt_music_add, yt_music_search};
 use api::player::{add_to_queue, pause};
 use api::search::{search, search_albums, search_artists, search_musics};
@@ -27,7 +29,7 @@ use diesel::r2d2::ConnectionManager;
 use diesel::r2d2::Pool;
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 
-use api::{player::{ play, stop, next, previous, state }};
+use api::{player::{ play, stop, next, previous, state, socket }};
 use api::user::{ login, signup, get_info };
 use api::music::{self, add_music};
 use api::album::{self, add_album};
@@ -73,6 +75,8 @@ async fn main() -> std::io::Result<()> {
     let _stream: OutputStream;
     let stream_handle: OutputStreamHandle;
 
+    let socket_sessions: Data<Mutex<Vec<Session>>> = Data::new(Mutex::new(Vec::new()));
+
     let player = match player_disabled.as_str() {
         "1" => {
             Player::new_dummy()
@@ -95,6 +99,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(Data::new(pool.clone()))
             .app_data(Data::new(player.clone()))
+            .app_data(Data::clone(&socket_sessions))
             .wrap(IdentityMiddleware::builder()
                 .login_deadline(Some(std::time::Duration::from_secs(60 * 60 * 24 * 365)))
                 .build()
@@ -140,6 +145,7 @@ async fn main() -> std::io::Result<()> {
             .service(next)
             .service(previous)
             .service(state)
+            .service(socket)
             .openapi_service(|api| {
                 SwaggerUi::new("/swagger-ui/{_:.*}").url("/api/openapi.json", api)
             })

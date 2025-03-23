@@ -15,11 +15,13 @@ use crate::{db_handlers::music::{get_music_by_id, to_rich_music}, models::{playe
 )]
 #[post("/player/add_to_queue")]
 /// Add music to queue
-async fn add_to_queue(_id: Identity, pool: Data<DbPool>, player: Data<Player>, query_data: Json<Id>) -> impl Responder {
+async fn add_to_queue(_id: Identity, pool: Data<DbPool>, player: Data<Player>, query_data: Json<Id>, socket_sessions: Data<Mutex<Vec<Session>>>) -> impl Responder {
     let conn = &mut pool.get().unwrap();
     
     let music = get_music_by_id(conn, query_data.id).unwrap();
     player.add_to_queue(music).await;
+
+    notify_sessions(socket_sessions, String::from("adding to queue")).await;
 
     HttpResponse::Ok().body("Added music to queue")
 }

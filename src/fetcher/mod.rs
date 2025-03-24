@@ -10,6 +10,7 @@ use crate::models::music::{Music, NewMusic};
 use crate::models::album::NewAlbum;
 use crate::models::artist::NewArtist;
 use crate::DbConnection;
+use diesel::expression::is_aggregate::No;
 use diesel::result::Error;
 use serde_json::json;
 use crate::models::errors::SearchError;
@@ -218,12 +219,26 @@ pub trait Fetcher {
             apple_music_id: None
         };
 
+        print!("{:#?}", tracks);
+
         for track in tracks {
             match track["source"].as_str().unwrap() {
-                "youtube" => result.youtube_id = Some(track["data"]["externalId"].as_str().unwrap().to_string()),
-                "spotify" => result.spotify_id = Some(track["data"]["externalId"].as_str().unwrap().to_string()),
-                "deezer" => result.deezer_id = Some(track["data"]["externalId"].as_str().unwrap().to_string()),
-                "appleMusic" => result.apple_music_id = Some(track["data"]["externalId"].as_str().unwrap().to_string()),
+                "youtube" => result.youtube_id = match track["data"].as_object() { 
+                    Some(data) => Some(data["externalId"].as_str().unwrap().to_string()),
+                    None => None
+                },
+                "spotify" => result.spotify_id = match track["data"].as_object() { 
+                    Some(data) => Some(data["externalId"].as_str().unwrap().to_string()),
+                    None => None
+                },
+                "deezer" => result.deezer_id = match track["data"].as_object() { 
+                    Some(data) => Some(data["externalId"].as_str().unwrap().to_string()),
+                    None => None
+                },
+                "appleMusic" => result.apple_music_id = match track["data"].as_object() { 
+                    Some(data) => Some(data["externalId"].as_str().unwrap().to_string()),
+                    None => None
+                },
                 _ => ()
             }
         }

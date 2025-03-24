@@ -114,12 +114,16 @@ impl Fetcher for YtMusicFetcher {
 
         let album_search_result = yt.search_albums(format!("{} {}", fetcher_music.album_title, fetcher_music.artists[0].name)).await;
 
-        if album_search_result.is_err() {
-            return Err(SearchError::new("Error while getting album from youtube"));
-        }
+        // if album_search_result.is_err() {
+        //     return Err(SearchError::new("Error while getting album from youtube"));
+        // }
 
-        let album_search = album_search_result.unwrap();
-
+        // Dirty syntax, to rework
+        let album_search = match album_search_result.is_err() {
+            false => album_search_result.unwrap(),
+            true => yt.search_albums(format!("{}", fetcher_music.album_title)).await.unwrap(),
+        };
+        
         if album_search.len().clone() == 0 {
             return Err(SearchError::new("No result after search on youtube"));
         }

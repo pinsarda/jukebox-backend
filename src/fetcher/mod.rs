@@ -219,8 +219,6 @@ pub trait Fetcher {
             apple_music_id: None
         };
 
-        print!("{:#?}", tracks);
-
         for track in tracks {
             match track["source"].as_str().unwrap() {
                 "youtube" => result.youtube_id = match track["data"].as_object() { 

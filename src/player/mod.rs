@@ -3,7 +3,8 @@ mod source;
 use std::sync::{Arc, Mutex};
 use std::fs::File;
 use std::io::BufReader;
-use rodio::{OutputStreamHandle, Sink};
+use std::time::Duration;
+use rodio::{OutputStreamHandle, Sink, Source};
 use rodio::Decoder;
 use source::SourceWithFn;
 
@@ -161,5 +162,9 @@ impl Player {
 
     pub fn get_is_playing(&self) -> bool {
         self.is_playing.lock().unwrap().clone()
+    }
+
+    pub fn seek(&self, pos: Duration) {
+        self.sink.lock().unwrap().try_seek(pos).expect("Failed to seek");
     }
 }

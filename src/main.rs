@@ -21,7 +21,7 @@ use actix_web::web::Data;
 use actix_web::{ App, HttpServer, middleware::Logger };
 use actix_ws::Session;
 use api::fetcher::{yt_music_add, yt_music_search};
-use api::player::{add_to_queue, pause};
+use api::player::{add_to_queue, pause, seek};
 use api::search::{search, search_albums, search_artists, search_musics};
 use diesel::pg::Pg;
 use diesel::prelude::*;
@@ -144,6 +144,7 @@ async fn main() -> std::io::Result<()> {
             .service(stop)
             .service(next)
             .service(previous)
+            .service(seek)
             .service(state)
             .service(socket)
             .openapi_service(|api| {

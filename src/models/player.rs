@@ -17,3 +17,8 @@ pub struct RichPlayerState {
     pub queue_index: i32,
     pub is_playing: bool
 }
+
+#[derive(Serialize, Deserialize, ToSchema, Debug)]
+pub struct SeekRequest {
+    pub pos: u64
+}

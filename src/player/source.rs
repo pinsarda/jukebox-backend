@@ -50,6 +50,10 @@ where
     fn total_duration(&self) -> Option<Duration> {
         self.0.total_duration()
     }
+
+    fn try_seek(&mut self, pos: Duration) -> Result<(), rodio::source::SeekError> {
+        self.0.try_seek(pos)
+    }
 }
 
 impl<S, F> SourceWithFn<S, F>

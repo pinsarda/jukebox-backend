@@ -1,10 +1,10 @@
-use std::sync::Mutex;
+use std::{sync::Mutex, time::Duration};
 use actix_ws::{AggregatedMessage, Session};
 use futures_util::StreamExt as _;
 use actix_identity::Identity;
 use actix_web::{ get, Error, post, web::{self, Data, Json, Payload}, HttpRequest, HttpResponse, Responder };
 
-use crate::{db_handlers::music::{get_music_by_id, to_rich_music}, models::{player::{PlayerState, RichPlayerState}, Id}, player::Player, DbPool};
+use crate::{api::player, db_handlers::music::{get_music_by_id, to_rich_music}, models::{player::{PlayerState, RichPlayerState, SeekRequest}, Id}, player::Player, DbPool};
 
 #[utoipa::path(
     request_body = Id,
@@ -96,13 +96,14 @@ async fn previous(_id: Identity, player: Data<Player>, socket_sessions: Data<Mut
 
 #[utoipa::path(
     responses(
-        (status = OK),
+        (status = OK, body=SeekRequest),
         (status = FORBIDDEN)
     )
 )]
 #[post("/player/seek")]
 /// Seek to 
-async fn seek() -> impl Responder {
+async fn seek(_id: Identity, player: Data<Player>, query_data: Json<SeekRequest>) -> impl Responder {
+    player.seek(Duration::from_millis(query_data.pos));
     HttpResponse::Ok().body("Not implemented")
 }
 

@@ -23,7 +23,7 @@ pub async fn download(music: &Music) {
     url.set_query(Some(&format!("v={}", music.youtube_id.clone().expect("No youtube id for music"))));
 
     YoutubeDl::new(url.to_string())
-    .format("m4a")
+    .format("bestaudio")
     .socket_timeout("15")
     .output_template(format!("{}.m4a", music.id))
     .extra_arg("--no-part")

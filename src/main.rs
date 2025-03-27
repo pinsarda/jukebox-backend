@@ -31,7 +31,7 @@ use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 
 use api::{player::{ play, stop, next, previous, state, socket }};
 use api::user::{ login, signup, get_info };
-use api::music::{self, add_music};
+use api::music::{self, add_favorite_music, add_music, remove_favorite_music};
 use api::album::{self, add_album};
 use api::artist::{self, add_artist};
 use rodio::{OutputStream, OutputStreamHandle};
@@ -125,6 +125,8 @@ async fn main() -> std::io::Result<()> {
             // music, album and artists managment
             .service(music::metadata)
             .service(add_music)
+            .service(add_favorite_music)
+            .service(remove_favorite_music)
             .service(album::metadata)
             .service(add_album)
             .service(artist::metadata)

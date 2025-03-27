@@ -3,7 +3,7 @@ use diesel::prelude::*;
 use serde::{Serialize, Deserialize};
 use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, Queryable, Selectable, ToSchema)]
+#[derive(Debug, Serialize, Deserialize, Queryable, AsChangeset, Identifiable,  Clone, Selectable, ToSchema)]
 #[diesel(table_name = users)]
 pub struct User {
     pub id: i32,

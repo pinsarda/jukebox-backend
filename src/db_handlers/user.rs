@@ -64,6 +64,43 @@ pub fn get_user_data(conn: &mut DbConnection, user_id: i32) -> Result<UserData, 
     
 }
 
+pub fn add_favorite_music(conn: &mut DbConnection, user_id: i32, music_id: i32) -> Result<(), Error> {
+
+    let user = get_user_by_id(conn, user_id)?;
+
+    let mut new_favorites = user.favorite_musics.clone();
+    if new_favorites.contains(&music_id) {
+        return Ok(());
+    }
+    new_favorites.push(music_id);
+
+    diesel::update(&user.clone())
+        .set(crate::schema::users::favorite_musics.eq(new_favorites))
+        .execute(conn)?;
+
+    Ok(())
+}
+
+pub fn remove_favorite_music(conn: &mut DbConnection, user_id: i32, music_id: i32) -> Result<(), Error> {
+
+    let user = get_user_by_id(conn, user_id)?;
+
+    let mut new_favorites = user.favorite_musics.clone();
+    if !new_favorites.contains(&music_id) {
+        return Ok(());
+    }
+
+    if let Some(pos) = new_favorites.iter().position(|x| *x == music_id) {
+        new_favorites.remove(pos);
+    }
+
+    diesel::update(&user.clone())
+        .set(crate::schema::users::favorite_musics.eq(new_favorites))
+        .execute(conn)?;
+
+    Ok(())
+}
+
 pub fn hash_password(password: String) -> Result<String, argon2::Error> {
     let salt: [u8; 32] = rand::thread_rng().gen();
     let config = Config::default();

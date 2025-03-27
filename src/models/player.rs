@@ -8,6 +8,7 @@ use crate::models::music::Music;
 pub struct PlayerState {
     pub queue: Vec<Music>,
     pub queue_index: i32,
+    pub current_pos: i32,
     pub is_playing: bool
 }
 
@@ -15,6 +16,7 @@ pub struct PlayerState {
 pub struct RichPlayerState {
     pub queue: Vec<RichMusic>,
     pub queue_index: i32,
+    pub current_pos: i32,
     pub is_playing: bool
 }
 

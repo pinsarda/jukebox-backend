@@ -145,9 +145,11 @@ impl Player {
     }
 
     pub fn get_state(&self) -> PlayerState {
+        let sink = self.sink.lock().unwrap();
         PlayerState {
             queue: self.get_queue(),
             queue_index: self.get_queue_index(),
+            current_pos: (sink.get_pos().as_millis() as i32),
             is_playing: self.get_is_playing()
         }
     }

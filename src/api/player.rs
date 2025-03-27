@@ -102,9 +102,10 @@ async fn previous(_id: Identity, player: Data<Player>, socket_sessions: Data<Mut
 )]
 #[post("/player/seek")]
 /// Seek to 
-async fn seek(_id: Identity, player: Data<Player>, query_data: Json<SeekRequest>) -> impl Responder {
+async fn seek(_id: Identity, player: Data<Player>, socket_sessions: Data<Mutex<Vec<Session>>>, query_data: Json<SeekRequest>) -> impl Responder {
     player.seek(Duration::from_millis(query_data.pos));
-    HttpResponse::Ok().body("Not implemented")
+    notify_sessions(socket_sessions, String::from("seeking")).await;
+    HttpResponse::Ok().body("Seeked succesfully")
 }
 
 #[utoipa::path(
@@ -125,6 +126,7 @@ async fn state(id: Identity, pool: Data<DbPool>, player: Data<Player>) -> Result
         queue: player_state.queue.into_iter().map(|music| {
                 to_rich_music(conn, music, user_id).unwrap()
             }).collect(),
+        current_pos: player_state.current_pos,
         queue_index: player_state.queue_index,
         is_playing: player_state.is_playing
     };
@@ -143,7 +145,14 @@ async fn socket(req: HttpRequest, stream: web::Payload, socket_sessions: Data<Mu
 }
 
 async fn notify_sessions(socket_sessions: Data<Mutex<Vec<Session>>>, message: String) {
-    for session in socket_sessions.lock().unwrap().iter() {
-        session.clone().text(message.clone()).await.unwrap();
+    match socket_sessions.lock() {
+        Ok(sessions) => for session in sessions.iter() {
+            match session.clone().text(message.clone()).await {
+                Ok(_) => (),
+                Err(_) => () // Socket is closed and shall be removed from socket_sessions 
+                // TODO alongside making socket_sessions an hashmap
+            }
+        },
+        Err(err) => print!("Error in session {:#?}", err.to_string())
     }
 }

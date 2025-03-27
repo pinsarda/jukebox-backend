@@ -6,6 +6,7 @@ pub struct FetcherMusic {
     pub fetcher_id: Option<String>,
     pub title: String,
     pub album_title: String,
+    pub duration: i32,
     pub artists: Vec<FetcherArtist>,
     pub thumb_url: Option<String>
 }

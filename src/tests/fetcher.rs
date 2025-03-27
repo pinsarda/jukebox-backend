@@ -12,6 +12,7 @@ async fn get_album_by_music_data() {
         fetcher_id: None,
         title: "Don't Stop Me Now".to_string(),
         album_title: "Jazz".to_string(),
+        duration: 0,
         artists: Vec::from([
             FetcherArtist {
                 name: "Queen".to_string(),
@@ -33,6 +34,7 @@ async fn get_external_ids() {
         fetcher_id: None,
         title: "Don't Stop Me Now".to_string(),
         album_title: "Jazz".to_string(),
+        duration: 0,
         artists: Vec::from([
             FetcherArtist {
                 name: "Queen".to_string(),

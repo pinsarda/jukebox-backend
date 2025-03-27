@@ -35,6 +35,7 @@ diesel::table! {
         title -> Varchar,
         artists_ids -> Array<Int4>,
         album_id -> Int4,
+        duration -> Int4,
         fetcher -> Nullable<Text>,
         youtube_id -> Nullable<Text>,
         spotify_id -> Nullable<Text>,

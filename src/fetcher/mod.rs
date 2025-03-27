@@ -9,6 +9,7 @@ use crate::models::fetcher::{ExternalIds, FetcherAlbum, FetcherArtist, FetcherMu
 use crate::models::music::{Music, NewMusic};
 use crate::models::album::NewAlbum;
 use crate::models::artist::NewArtist;
+use crate::schema::musics::duration;
 use crate::DbConnection;
 use diesel::expression::is_aggregate::No;
 use diesel::result::Error;
@@ -169,6 +170,7 @@ pub trait Fetcher {
             title: fetcher_music.title.clone(),
             artists_ids: self.regularize_artists(conn, &fetcher_music.artists).unwrap(),
             album_id: album_id,
+            duration: fetcher_music.duration,
             youtube_id: external_ids.youtube_id,
             spotify_id: external_ids.spotify_id,
             deezer_id: external_ids.deezer_id,

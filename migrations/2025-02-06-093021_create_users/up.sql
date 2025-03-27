@@ -25,6 +25,7 @@ CREATE TABLE musics (
   title VARCHAR NOT NULL,
   artists_ids INTEGER[] NOT NULL,
   album_id INTEGER NOT NULL,
+  duration INTEGER NOT NULL,
   fetcher TEXT,
   youtube_id TEXT,
   spotify_id TEXT,

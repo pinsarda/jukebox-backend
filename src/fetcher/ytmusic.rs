@@ -37,12 +37,39 @@ impl YtMusicFetcher {
             }
         ).collect::<Vec<FetcherArtist>>()
     }
+
+    fn duration_to_ms(&self, duration_str: &str)-> Result<i32, String> {
+        let parts: Vec<&str> = duration_str.split(':').collect();
+    
+        let (hours, minutes, seconds) = match parts.len() {
+            1 => {
+                let seconds = parts[0].parse::<u32>().map_err(|e| e.to_string())?;
+                (0, 0, seconds)
+            }
+            2 => {
+                let minutes = parts[0].parse::<u32>().map_err(|e| e.to_string())?;
+                let seconds = parts[1].parse::<u32>().map_err(|e| e.to_string())?;
+                (0, minutes, seconds)
+            }
+            3 => {
+                let hours = parts[0].parse::<u32>().map_err(|e| e.to_string())?;
+                let minutes = parts[1].parse::<u32>().map_err(|e| e.to_string())?;
+                let seconds = parts[2].parse::<u32>().map_err(|e| e.to_string())?;
+                (hours, minutes, seconds)
+            }
+            _ => return Err("Invalid datetime format".to_string()),
+        };
+    
+        let milliseconds = (hours * 60 * 60 * 1000) + (minutes * 60 * 1000) + (seconds * 1000);
+    
+        Ok(milliseconds as i32)
+    }
 }
 
 impl Fetcher for YtMusicFetcher {
     async fn search_musics(&self, query: String) -> Vec<FetcherMusic> {
         let yt = get_yt_music().await;
-        let search_result = yt.search_songs(query).await.unwrap();
+        let search_result: Vec<ytmapi_rs::parse::SearchResultSong> = yt.search_songs(query).await.unwrap();
         let musics = search_result.iter().map(|music|
             FetcherMusic {
                 fetcher_id: Some(String::from(music.video_id.get_raw())),
@@ -54,6 +81,7 @@ impl Fetcher for YtMusicFetcher {
                         name: music.artist.clone() 
                     }
                 ]),
+                duration: self.duration_to_ms(&music.duration).unwrap(),
                 thumb_url: 
                     if music.thumbnails.len() > 0 {
                         Some(music.thumbnails[0].url.clone())
@@ -136,6 +164,7 @@ impl Fetcher for YtMusicFetcher {
                 title: music.title.clone(),
                 album_title: album.title.clone(),
                 artists: artists.clone(),
+                duration: self.duration_to_ms(&music.duration).unwrap(),
                 thumb_url: 
                     if fetcher_music.thumb_url.is_some() {
                         Some(fetcher_music.thumb_url.clone().unwrap())

@@ -1,6 +1,6 @@
 use actix_identity::Identity;
 use actix_web::{ get, post, web::{Data, Json, Query}, Error, Result };
-use crate::{ db_handlers::artist::{get_artist_by_id, to_rich_artist}, models::artist::{Artist, NewArtist, RichArtist}};
+use crate::{ db_handlers::artist::{get_artist_by_id, to_rich_artist}, models::{album::RichAlbum, artist::{Artist, NewArtist, RichArtist}}};
 use crate::DbPool;
 use crate::models::Id;
 
@@ -28,6 +28,20 @@ async fn add_artist(_id: Identity, pool: Data<DbPool>, new_artist: Json<NewArtis
     let conn = &mut pool.get().unwrap();
 
     let result = crate::db_handlers::artist::add_artist(conn, new_artist.into_inner()).unwrap();
+
+    Ok(Json(result))
+}
+
+#[utoipa::path()]
+#[get("/artist/get_albums")]
+/// Add an artist to the database
+async fn get_albums(id: Identity, pool: Data<DbPool>, query_data: Query<Id>) -> Result<Json<Vec<RichAlbum>>, Error> {
+
+    let conn = &mut pool.get().unwrap();
+
+    let user_id = id.id().unwrap().parse::<i32>().unwrap();
+
+    let result = crate::db_handlers::artist::get_albums_from_artist(conn, query_data.id, user_id).unwrap();
 
     Ok(Json(result))
 }

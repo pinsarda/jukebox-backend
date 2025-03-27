@@ -1,6 +1,13 @@
+use diesel::dsl::any;
+use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::prelude::*;
 use diesel::result::Error;
+use crate::api::user;
+use crate::db_handlers::album::to_rich_album;
+use crate::models::album::Album;
+use diesel::sql_query;
+use crate::models::album::RichAlbum;
 use crate::models::artist::{ Artist, NewArtist, RichArtist };
 use crate::DbConnection;
 use crate::db_handlers::user::get_user_by_id;
@@ -57,6 +64,26 @@ pub fn get_artists_by_ids(conn: &mut DbConnection, artists_ids: Vec<i32>, user_i
     }).collect();
 
     Ok(results)
+}
+
+pub fn get_albums_from_artist(conn: &mut DbConnection, artist_id: i32, user_id: i32) -> Result<Vec<RichAlbum>, Error> {
+
+    // Raw SQL is not great but couldn't figure another way to use = ANY() properly
+    // (Diesel eq_any doesn't do quite that apparently)
+    let albums_results = sql_query(
+        format!("SELECT *
+        FROM albums
+        WHERE {} = ANY (artists_ids);", artist_id)
+    ).load::<Album>(conn)
+    .unwrap();
+
+    print!("{:#?}", albums_results);
+
+    let artist_albums: Vec<RichAlbum> = albums_results.into_iter().map(|album| {
+            to_rich_album(conn, album, user_id).unwrap()
+    }).collect();
+
+    Ok(artist_albums)
 }
 
 pub fn add_artist(conn: &mut DbConnection, new_artist: NewArtist) -> Result<Artist, Error> {

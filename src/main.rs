@@ -131,6 +131,7 @@ async fn main() -> std::io::Result<()> {
             .service(add_album)
             .service(artist::metadata)
             .service(add_artist)
+            .service(artist::get_albums)
             // database search
             .service(search_musics) 
             .service(search_albums) 

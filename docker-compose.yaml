@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  jukebox-postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: jukebox
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - jukebox-network
+    restart: unless-stopped
+
+  jukebox:
+    image: localhost/jukebox
+    privileged: true
+    devices:
+      - /dev/snd
+    # ports:
+    #   - "8080:8080"
+    volumes:
+      - jukebox_storage:/jukebox/Storage
+    environment:
+      DATABASE_URL: postgres://postgres:mysecretpassword@jukebox-postgres:5432/jukebox
+      YOUTUBE_API_KEY: "YOUR KEY"
+      YOUTUBE_MUSIC_COOKIE: "YOUR COOKIE"
+      MUSICAPI_TOKEN: "Token YOUR TOKEN"
+    networks:
+      - jukebox-network
+    depends_on:
+      - jukebox-postgres
+    restart: unless-stopped
+  
+  jukebox-frontend:
+    image: localhost/jukebox-frontend
+    # ports:
+    #   - "5000:80"
+    networks:
+      - jukebox-network
+    depends_on:
+      - jukebox-postgres
+    restart: unless-stopped
+
+  nginx:
+    privileged: true
+    image: nginx
+    volumes:
+      - ./nginx:/etc/nginx
+    ports:
+      - "80:80"
+    networks:
+      - jukebox-network
+    depends_on:
+      - jukebox-postgres
+      - jukebox-frontend
+      - jukebox
+
+networks:
+  jukebox-network:
+    driver: bridge
+  
+volumes:
+  postgres_data:
+  jukebox_storage:

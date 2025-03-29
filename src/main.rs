@@ -109,6 +109,7 @@ async fn main() -> std::io::Result<()> {
                     CookieSessionStore::default(),
                     secret_key.clone(),
                 )
+                .cookie_secure(false)
                 .session_lifecycle(
                     PersistentSession::default().session_ttl(Duration::seconds(60 * 60 * 24 * 365))
                 )

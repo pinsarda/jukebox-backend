@@ -18,6 +18,7 @@ pub struct RichPlayerState {
     pub queue: Vec<RichMusic>,
     pub queue_index: i32,
     pub current_pos: i32,
+    pub volume: f32,
     pub is_playing: bool
 }
 

@@ -142,6 +142,7 @@ async fn state(id: Identity, pool: Data<DbPool>, player: Data<Player>) -> Result
             }).collect(),
         current_pos: player_state.current_pos,
         queue_index: player_state.queue_index,
+        volume: player_state.volume,
         is_playing: player_state.is_playing
     };
 

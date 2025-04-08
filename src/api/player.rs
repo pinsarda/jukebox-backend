@@ -4,7 +4,7 @@ use futures_util::StreamExt as _;
 use actix_identity::Identity;
 use actix_web::{ get, Error, post, web::{self, Data, Json, Payload}, HttpRequest, HttpResponse, Responder };
 
-use crate::{api::player, db_handlers::music::{get_music_by_id, to_rich_music}, models::{player::{PlayerState, RichPlayerState, SeekRequest}, Id}, player::Player, DbPool};
+use crate::{api::player, db_handlers::music::{get_music_by_id, to_rich_music}, models::{player::{PlayerState, RichPlayerState, SeekRequest, VolumeChangeRequest}, Id}, player::Player, DbPool};
 
 #[utoipa::path(
     request_body = Id,
@@ -106,6 +106,20 @@ async fn seek(_id: Identity, player: Data<Player>, socket_sessions: Data<Mutex<V
     player.seek(Duration::from_millis(query_data.pos));
     notify_sessions(socket_sessions, String::from("seeking")).await;
     HttpResponse::Ok().body("Seeked succesfully")
+}
+
+#[utoipa::path(
+    responses(
+        (status = OK, body=VolumeChangeRequest),
+        (status = FORBIDDEN)
+    )
+)]
+#[post("/player/set_volume")]
+/// Set volume
+async fn set_volume(_id: Identity, player: Data<Player>, socket_sessions: Data<Mutex<Vec<Session>>>, query_data: Json<VolumeChangeRequest>) -> impl Responder {
+    player.set_volume(query_data.volume);
+    notify_sessions(socket_sessions, String::from("volume adjustment")).await;
+    HttpResponse::Ok().body("Changed volume succesfully")
 }
 
 #[utoipa::path(

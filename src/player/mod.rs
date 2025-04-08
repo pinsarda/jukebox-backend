@@ -144,12 +144,18 @@ impl Player {
         self.restart_sink();
     }
 
+    pub fn set_volume(&self, volume: f32) {
+        let sink = self.sink.lock().unwrap();
+        sink.set_volume(volume);
+    }
+
     pub fn get_state(&self) -> PlayerState {
         let sink = self.sink.lock().unwrap();
         PlayerState {
             queue: self.get_queue(),
             queue_index: self.get_queue_index(),
             current_pos: (sink.get_pos().as_millis() as i32),
+            volume: sink.volume(),
             is_playing: self.get_is_playing()
         }
     }

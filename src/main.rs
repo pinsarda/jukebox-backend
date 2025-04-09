@@ -20,7 +20,7 @@ use actix_web::cookie::Key;
 use actix_web::web::Data;
 use actix_web::{ App, HttpServer, middleware::Logger };
 use actix_ws::Session;
-use api::fetcher::{yt_music_add, yt_music_search};
+use api::fetcher::{youtube_add, youtube_search, yt_music_add, yt_music_search};
 use api::player::{add_to_queue, pause, seek};
 use api::search::{search, search_albums, search_artists, search_musics};
 use diesel::pg::Pg;
@@ -141,6 +141,8 @@ async fn main() -> std::io::Result<()> {
             // fetching
             .service(yt_music_add)
             .service(yt_music_search)
+            .service(youtube_search)
+            .service(youtube_add)
             // player api
             .service(add_to_queue)
             .service(play)

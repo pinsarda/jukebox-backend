@@ -1,4 +1,5 @@
 pub mod ytmusic;
+pub mod youtube;
 
 use std::fs::{self, File};
 use std::io::{self, Cursor, Read};

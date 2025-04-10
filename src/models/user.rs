@@ -3,6 +3,8 @@ use diesel::prelude::*;
 use serde::{Serialize, Deserialize};
 use utoipa::ToSchema;
 
+use super::{album::RichAlbum, artist::RichArtist, music::RichMusic};
+
 #[derive(Debug, Serialize, Deserialize, Queryable, AsChangeset, Identifiable,  Clone, Selectable, ToSchema)]
 #[diesel(table_name = users)]
 pub struct User {
@@ -26,4 +28,11 @@ pub struct UserData {
 pub struct NewUser {
     pub username: String,
     pub password: String
+}
+
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+pub struct Favorites {
+    pub artists: Vec<RichArtist>,
+    pub albums: Vec<RichAlbum>,
+    pub musics: Vec<RichMusic>
 }

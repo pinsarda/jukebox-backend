@@ -30,7 +30,7 @@ use diesel::r2d2::Pool;
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 
 use api::{player::{ play, stop, next, previous, state, socket, set_volume }};
-use api::user::{ login, signup, get_info };
+use api::user::{ favorites, get_info, login, signup };
 use api::music::{self, add_favorite_music, add_music, remove_favorite_music};
 use api::album::{self, add_album};
 use api::artist::{self, add_artist};
@@ -123,6 +123,7 @@ async fn main() -> std::io::Result<()> {
             .service(signup)
             .service(login)
             .service(get_info)
+            .service(favorites)
             // music, album and artists managment
             .service(music::metadata)
             .service(add_music)

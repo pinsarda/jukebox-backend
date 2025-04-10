@@ -2,9 +2,9 @@ use actix_identity::Identity;
 use actix_web::web::Json;
 use actix_web::{HttpRequest, HttpResponse, Responder, http::StatusCode};
 use actix_web::{ web::Data, HttpMessage, Result, post, get };
-use crate::models::user::{ NewUser, UserData };
+use crate::models::user::{ Favorites, NewUser, UserData };
 use crate::DbPool;
-use crate::db_handlers::user::{ create_user, get_user, get_user_data, verify_password };
+use crate::db_handlers::user::{ create_user, get_favorites, get_user, get_user_data, verify_password };
 
 
 #[utoipa::path(
@@ -59,4 +59,21 @@ async fn login(pool: Data<DbPool>, request: HttpRequest, new_user: Json<NewUser>
     } else {
         HttpResponse::build(StatusCode::BAD_REQUEST).json("Wrong password")
     }
+}
+
+#[utoipa::path()]
+#[get("/user/favorites")]
+/// Get user favorites (only works with musics for now)
+async fn favorites(id: Identity, pool: Data<DbPool>) -> Result<Json<Favorites>> {
+
+    let conn = &mut pool.get().unwrap();
+    let user_id = id.id().unwrap().parse::<i32>().unwrap();
+
+    let result = Favorites {
+        artists: Vec::new(),
+        albums: Vec::new(),
+        musics: get_favorites(conn, user_id).unwrap()
+    };
+
+    Ok(Json(result))
 }

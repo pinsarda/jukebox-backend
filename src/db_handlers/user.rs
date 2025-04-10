@@ -1,6 +1,9 @@
 use diesel::RunQueryDsl;
 use diesel::prelude::*;
 use diesel::result::Error;
+use crate::db_handlers::music::to_rich_music;
+use crate::models::music::Music;
+use crate::models::music::RichMusic;
 use crate::models::user::{ User, NewUser, UserData };
 use crate::DbConnection;
 use argon2::Config;
@@ -110,4 +113,28 @@ pub fn hash_password(password: String) -> Result<String, argon2::Error> {
 
 pub fn verify_password(hash: String, password: String) -> Result<bool, argon2::Error> {
     argon2::verify_encoded(&hash, password.as_bytes())
+}
+
+pub fn get_favorites(conn: &mut DbConnection, user_id: i32) -> Result<Vec<RichMusic>, Error> {
+    use crate::schema::users::dsl::users;
+
+    let ids: Vec<i32> = users
+        .find(user_id)
+        .select(crate::schema::users::favorite_musics)
+        .first(conn)
+        .unwrap();
+
+    use crate::schema::musics::dsl::musics;
+
+    let favorite_musics: Vec<Music> = musics
+        .filter(crate::schema::musics::id.eq_any(ids))
+        .select(Music::as_select())
+        .load::<Music>(conn)
+        .unwrap();
+
+    let results: Vec<RichMusic> = favorite_musics.into_iter().map(|music| {
+        to_rich_music(conn, music, user_id).unwrap()
+    }).collect();
+
+    Ok(results)
 }

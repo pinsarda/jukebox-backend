@@ -23,6 +23,8 @@ pub trait Fetcher {
     async fn search_albums(&self, query: String) -> Vec<FetcherAlbum>;
     async fn search_artists(&self, query: String) -> Vec<FetcherArtist>;
 
+    fn get_id(&self) -> String;
+
     async fn search(&self, query: String) -> Vec<FetcherSearchResult> {
 
         let (musics_result, albums_results, artists_result) = tokio::join!(
@@ -137,7 +139,7 @@ pub trait Fetcher {
                     title: fetcher_album.title.clone(),
                     artists_ids: self.regularize_artists(conn, &fetcher_album.artists).unwrap(),
                     description: None,
-                    fetcher: None,
+                    fetcher: Some(self.get_id()),
                     origin_user_id: origin_user_id,
                     youtube_id: None,
                     spotify_id: None,
@@ -173,6 +175,7 @@ pub trait Fetcher {
             artists_ids: self.regularize_artists(conn, &fetcher_music.artists).unwrap(),
             album_id: album_id,
             duration: fetcher_music.duration,
+            fetcher: Some(self.get_id()),
             youtube_id: external_ids.youtube_id,
             spotify_id: external_ids.spotify_id,
             deezer_id: external_ids.deezer_id,

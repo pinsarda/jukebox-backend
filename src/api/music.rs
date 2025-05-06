@@ -26,7 +26,10 @@ async fn add_music(_id: Identity, pool: Data<DbPool>, new_music: Json<NewMusic>)
     
     let conn = &mut pool.get().unwrap();
 
-    let result = crate::db_handlers::music::add_music(conn, new_music.into_inner()).unwrap();
+    let mut new_music = new_music.into_inner();
+    new_music.fetcher = None;
+
+    let result = crate::db_handlers::music::add_music(conn, new_music).unwrap();
 
     Ok(Json(result))
 }

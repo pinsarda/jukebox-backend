@@ -30,6 +30,7 @@ async fn add_album(id: Identity, pool: Data<DbPool>, new_album: Json<NewAlbum>) 
 
     let mut new_album = new_album.into_inner();
     new_album.origin_user_id = user_id;
+    new_album.fetcher = None;
 
     let result = crate::db_handlers::album::add_album(conn, new_album).unwrap();
 

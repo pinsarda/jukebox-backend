@@ -40,6 +40,10 @@ impl YoutubeFetcher {
 }
 
 impl Fetcher for YoutubeFetcher {
+    fn get_id(&self) -> String {
+        self.id.clone()
+    }
+
     async fn search_musics(&self, query: String) -> Vec<FetcherMusic> {
         let key =  std::env::var("YOUTUBE_API_KEY").expect("YOUTUBE_API_KEY must be set for youtube search");
 

@@ -67,6 +67,10 @@ impl YtMusicFetcher {
 }
 
 impl Fetcher for YtMusicFetcher {
+    fn get_id(&self) -> String {
+        self.id.clone()
+    }
+
     async fn search_musics(&self, query: String) -> Vec<FetcherMusic> {
         let yt = get_yt_music().await;
         let search_result: Vec<ytmapi_rs::parse::SearchResultSong> = yt.search_songs(query).await.unwrap();

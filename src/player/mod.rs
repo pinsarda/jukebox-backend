@@ -85,7 +85,9 @@ impl Player {
         }
 
         let mut queue = self.queue.lock().unwrap();
-        queue.push(music.clone());
+        if !queue.iter().any(|m| m.id == music.id) {
+            queue.push(music.clone());
+        }    
 
         // Start playback if queue is initially empty
         if queue.len() == 1 {

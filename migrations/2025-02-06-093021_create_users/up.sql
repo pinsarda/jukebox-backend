@@ -51,5 +51,5 @@ CREATE TABLE analytics (
   music_id INTEGER NOT NULL,
   album_id INTEGER NOT NULL,
   user_id INTEGER NOT NULL,
-  date_played TIMESTAMP
+  date_played TIMESTAMP NOT NULL
 );

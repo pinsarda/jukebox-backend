@@ -24,7 +24,7 @@ diesel::table! {
         music_id -> Int4,
         album_id -> Int4,
         user_id -> Int4,
-        date_played -> Nullable<Timestamp>,
+        date_played -> Timestamp,
     }
 }
 

@@ -4,7 +4,7 @@ use futures_util::StreamExt as _;
 use actix_identity::Identity;
 use actix_web::{ get, Error, post, web::{self, Data, Json, Payload}, HttpRequest, HttpResponse, Responder };
 
-use crate::{api::player, db_handlers::music::{get_music_by_id, to_rich_music}, models::{player::{MoveMusicInQueueRequest, PlayerState, RichPlayerState, SeekRequest, VolumeChangeRequest}, Id}, player::Player, DbPool};
+use crate::{api::player, db_handlers::{analytics::log_playback, music::{get_music_by_id, to_rich_music}}, models::{player::{MoveMusicInQueueRequest, PlayerState, RichPlayerState, SeekRequest, VolumeChangeRequest}, Id}, player::Player, DbPool};
 
 #[utoipa::path(
     request_body = Id,
@@ -15,10 +15,12 @@ use crate::{api::player, db_handlers::music::{get_music_by_id, to_rich_music}, m
 )]
 #[post("/player/add_to_queue")]
 /// Add music to queue
-async fn add_to_queue(_id: Identity, pool: Data<DbPool>, player: Data<Player>, query_data: Json<Id>, socket_sessions: Data<Mutex<Vec<Session>>>) -> impl Responder {
+async fn add_to_queue(id: Identity, pool: Data<DbPool>, player: Data<Player>, query_data: Json<Id>, socket_sessions: Data<Mutex<Vec<Session>>>) -> impl Responder {
     let conn = &mut pool.get().unwrap();
-    
+    let user_id = id.id().unwrap().parse::<i32>().unwrap();
+
     let music = get_music_by_id(conn, query_data.id).unwrap();
+    log_playback(conn, music.id, music.album_id, user_id).unwrap();
     player.add_to_queue(music).await;
 
     notify_sessions(socket_sessions, String::from("adding to queue")).await;

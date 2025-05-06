@@ -31,3 +31,9 @@ pub struct SeekRequest {
 pub struct VolumeChangeRequest {
     pub volume: f32
 }
+
+#[derive(Serialize, Deserialize, ToSchema, Debug)]
+pub struct MoveMusicInQueueRequest {
+    pub old_index: i32,
+    pub new_index: i32
+}

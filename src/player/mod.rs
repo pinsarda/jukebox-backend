@@ -149,6 +149,29 @@ impl Player {
         sink.set_volume(volume);
     }
 
+    pub fn move_music_in_queue(&self, old_index: i32, new_index: i32) {
+
+        let mut queue_index = self.queue_index.lock().unwrap();
+        let mut queue = self.queue.lock().unwrap();
+
+        // Ensure the indices are within bounds
+        if old_index < 0 || new_index < 0 || old_index as usize >= queue.len() || new_index as usize >= queue.len() {
+            return;
+        }
+
+        let element = queue.remove(old_index as usize);
+        queue.insert(new_index as usize, element);
+        
+        // Update the queue index to stay at the currently playing music
+        if *queue_index == old_index {
+            *queue_index = new_index;
+        } else if old_index < *queue_index && *queue_index <= new_index {
+            *queue_index -= 1;
+        } else if new_index <= *queue_index && *queue_index < old_index {
+            *queue_index += 1;
+        }
+    }
+
     pub fn get_state(&self) -> PlayerState {
         let sink = self.sink.lock().unwrap();
         PlayerState {

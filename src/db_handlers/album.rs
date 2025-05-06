@@ -44,6 +44,7 @@ pub fn to_rich_album(conn: &mut DbConnection, album: Album, user_id: i32) -> Res
         artists: artists,
         musics: musics,
         fetcher: None,
+        origin_user_id: album.origin_user_id,
         youtube_id: None,
         spotify_id: None,
         deezer_id: None,

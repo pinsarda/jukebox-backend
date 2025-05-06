@@ -14,6 +14,7 @@ CREATE TABLE albums (
   artists_ids INTEGER[] NOT NULL,
   description TEXT,
   fetcher TEXT,
+  origin_user_id INTEGER NOT NULL,
   youtube_id TEXT,
   spotify_id TEXT,
   deezer_id TEXT,
@@ -43,4 +44,12 @@ CREATE TABLE artists (
   spotify_id TEXT,
   deezer_id TEXT,
   apple_music_id TEXT
+);
+
+CREATE TABLE analytics (
+  id SERIAL PRIMARY KEY,
+  music_id INTEGER NOT NULL,
+  album_id INTEGER NOT NULL,
+  user_id INTEGER NOT NULL,
+  date_played TIMESTAMP
 );

@@ -111,10 +111,10 @@ pub trait Fetcher {
         Ok(0)
     }
 
-    async fn add_music_with_album(&self, conn: &mut DbConnection, fetcher_music_data: &FetcherMusic) -> Result<(), SearchError> {
+    async fn add_music_with_album(&self, conn: &mut DbConnection, fetcher_music_data: &FetcherMusic, origin_user_id: i32) -> Result<(), SearchError> {
         let fetcher_album = self.get_album_by_music_data(fetcher_music_data).await.unwrap();
 
-        self.add_album(conn, &fetcher_album).await
+        self.add_album(conn, &fetcher_album, origin_user_id).await
     }
 
     async fn download_thumb(&self, url: &str, dest: &Path) {
@@ -128,7 +128,7 @@ pub trait Fetcher {
 
     }
 
-    async fn add_album(&self, conn: &mut DbConnection, fetcher_album: &FetcherAlbum) -> Result<(), SearchError> {
+    async fn add_album(&self, conn: &mut DbConnection, fetcher_album: &FetcherAlbum, origin_user_id: i32) -> Result<(), SearchError> {
     
         let new_album_id = match self.disambiguate_album(conn, &fetcher_album) {
             Ok(_) => return Err(SearchError::new("Album already exists in database")),
@@ -138,6 +138,7 @@ pub trait Fetcher {
                     artists_ids: self.regularize_artists(conn, &fetcher_album.artists).unwrap(),
                     description: None,
                     fetcher: None,
+                    origin_user_id: origin_user_id,
                     youtube_id: None,
                     spotify_id: None,
                     deezer_id: None,

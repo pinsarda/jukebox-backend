@@ -10,10 +10,21 @@ diesel::table! {
         artists_ids -> Array<Int4>,
         description -> Nullable<Text>,
         fetcher -> Nullable<Text>,
+        origin_user_id -> Int4,
         youtube_id -> Nullable<Text>,
         spotify_id -> Nullable<Text>,
         deezer_id -> Nullable<Text>,
         apple_music_id -> Nullable<Text>,
+    }
+}
+
+diesel::table! {
+    analytics (id) {
+        id -> Int4,
+        music_id -> Int4,
+        album_id -> Int4,
+        user_id -> Int4,
+        date_played -> Nullable<Timestamp>,
     }
 }
 
@@ -60,6 +71,7 @@ diesel::joinable!(musics -> albums (album_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     albums,
+    analytics,
     artists,
     musics,
     users,

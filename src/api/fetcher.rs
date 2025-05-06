@@ -27,10 +27,11 @@ async fn yt_music_search(_id: Identity, pool: Data<DbPool>, data: Query<SearchQu
 )]
 #[post("/fetcher/ytmusic/add")]
 /// Add a music from youtube music
-async fn yt_music_add(_id: Identity, pool: Data<DbPool>, data: Json<FetcherMusic>) -> impl Responder {
+async fn yt_music_add(id: Identity, pool: Data<DbPool>, data: Json<FetcherMusic>) -> impl Responder {
     let conn = &mut pool.get().unwrap();
+    let user_id = id.id().unwrap().parse::<i32>().unwrap();
 
-    match YtMusicFetcher::new().add_music_with_album(conn, &data).await {
+    match YtMusicFetcher::new().add_music_with_album(conn, &data, user_id).await {
         Ok(_) => HttpResponse::Ok().body("Succesfully added new music."),
         Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
     }
@@ -60,10 +61,11 @@ async fn youtube_search(_id: Identity, pool: Data<DbPool>, data: Query<SearchQue
 )]
 #[post("/fetcher/youtube/add")]
 /// Add a music from Youtube
-async fn youtube_add(_id: Identity, pool: Data<DbPool>, data: Json<FetcherMusic>) -> impl Responder {
+async fn youtube_add(id: Identity, pool: Data<DbPool>, data: Json<FetcherMusic>) -> impl Responder {
     let conn = &mut pool.get().unwrap();
+    let user_id = id.id().unwrap().parse::<i32>().unwrap();
 
-    match YoutubeFetcher::new().add_music_with_album(conn, &data).await {
+    match YoutubeFetcher::new().add_music_with_album(conn, &data, user_id).await {
         Ok(_) => HttpResponse::Ok().body("Succesfully added new music."),
         Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
     }

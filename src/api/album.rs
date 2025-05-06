@@ -23,11 +23,15 @@ async fn metadata(id: Identity, pool: Data<DbPool>, query_data: Query<Id>) -> Re
 #[utoipa::path()]
 #[post("/album/add")]
 /// Add an album to the database
-async fn add_album(_id: Identity, pool: Data<DbPool>, new_album: Json<NewAlbum>) -> Result<Json<Album>, Error> {
+async fn add_album(id: Identity, pool: Data<DbPool>, new_album: Json<NewAlbum>) -> Result<Json<Album>, Error> {
 
     let conn = &mut pool.get().unwrap();
+    let user_id = id.id().unwrap().parse::<i32>().unwrap();
 
-    let result = crate::db_handlers::album::add_album(conn, new_album.into_inner()).unwrap();
+    let mut new_album = new_album.into_inner();
+    new_album.origin_user_id = user_id;
+
+    let result = crate::db_handlers::album::add_album(conn, new_album).unwrap();
 
     Ok(Json(result))
 }

@@ -138,6 +138,20 @@ async fn move_music_in_queue(_id: Identity, player: Data<Player>, socket_session
 
 #[utoipa::path(
     responses(
+        (status = OK),
+        (status = FORBIDDEN)
+    )
+)]
+#[post("/player/clear_queue")]
+/// Clear the queue
+async fn clear_queue(_id: Identity, player: Data<Player>, socket_sessions: Data<Mutex<Vec<Session>>>) -> impl Responder {
+    player.clear_queue();
+    notify_sessions(socket_sessions, String::from("queue update")).await;
+    HttpResponse::Ok().body("Updated Queue succesfully")
+}
+
+#[utoipa::path(
+    responses(
         (status = OK, body=RichPlayerState),
         (status = FORBIDDEN)
     )

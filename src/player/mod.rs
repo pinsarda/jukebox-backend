@@ -4,7 +4,7 @@ use std::sync::{Arc, Mutex};
 use std::fs::File;
 use std::io::BufReader;
 use std::time::Duration;
-use rodio::{OutputStreamHandle, Sink, Source};
+use rodio::{queue, OutputStreamHandle, Sink, Source};
 use rodio::Decoder;
 use source::SourceWithFn;
 
@@ -172,6 +172,18 @@ impl Player {
         } else if new_index <= *queue_index && *queue_index < old_index {
             *queue_index += 1;
         }
+    }
+
+    pub fn clear_queue(&self) {
+        let mut queue_index = self.queue_index.lock().unwrap();
+        let mut queue = self.queue.lock().unwrap();
+        let sink = self.sink.lock().unwrap();
+        let mut is_playing = self.is_playing.lock().unwrap();
+
+        *queue_index = 0;
+        *queue = Vec::new();
+        sink.stop();
+        *is_playing = false;
     }
 
     pub fn get_state(&self) -> PlayerState {

@@ -21,7 +21,7 @@ use actix_web::web::Data;
 use actix_web::{ App, HttpServer, middleware::Logger };
 use actix_ws::Session;
 use api::fetcher::{youtube_add, youtube_search, yt_music_add, yt_music_search};
-use api::player::{add_to_queue, move_music_in_queue, pause, seek};
+use api::player::{add_to_queue, clear_queue, move_music_in_queue, pause, seek};
 use api::search::{search, search_albums, search_artists, search_musics};
 use diesel::pg::Pg;
 use diesel::prelude::*;
@@ -154,6 +154,7 @@ async fn main() -> std::io::Result<()> {
             .service(seek)
             .service(set_volume)
             .service(move_music_in_queue)
+            .service(clear_queue)
             .service(state)
             .service(socket)
             .openapi_service(|api| {

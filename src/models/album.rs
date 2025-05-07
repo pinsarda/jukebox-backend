@@ -7,7 +7,7 @@ use std::convert::From;
 use super::{artist::RichArtist, music::RichMusic};
 
 
-#[derive(Debug, Serialize, Deserialize, QueryableByName, Identifiable, Queryable, Selectable, ToSchema)]
+#[derive(Debug, Serialize, Deserialize, Clone, QueryableByName, Identifiable, Queryable, Selectable, ToSchema)]
 #[diesel(table_name = albums)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Album {

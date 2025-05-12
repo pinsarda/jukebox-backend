@@ -7,7 +7,7 @@ use std::convert::From;
 use crate::models::fetcher::FetcherArtist;
 
 
-#[derive(Debug, Serialize, Deserialize, Queryable, Selectable, ToSchema)]
+#[derive(Debug, Serialize, Deserialize, Clone, Queryable, Selectable, ToSchema)]
 #[diesel(table_name = artists)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Artist {
@@ -20,7 +20,7 @@ pub struct Artist {
     pub apple_music_id: Option<String>
 }
 
-#[derive(Debug, Serialize, Deserialize, Insertable, QueryableByName, Queryable, Selectable, ToSchema)]
+#[derive(Debug, Serialize, Deserialize, Clone, Insertable, QueryableByName, Queryable, Selectable, ToSchema)]
 #[diesel(table_name = artists)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct NewArtist {

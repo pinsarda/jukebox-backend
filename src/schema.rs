@@ -56,6 +56,19 @@ diesel::table! {
 }
 
 diesel::table! {
+    playlists (id) {
+        id -> Int4,
+        owner_id -> Int4,
+        title -> Text,
+        description -> Nullable<Text>,
+        musics -> Array<Int4>,
+        fetcher -> Nullable<Text>,
+        fetcher_id -> Nullable<Text>,
+        date_created -> Timestamp,
+    }
+}
+
+diesel::table! {
     users (id) {
         id -> Int4,
         username -> Varchar,
@@ -68,11 +81,13 @@ diesel::table! {
 }
 
 diesel::joinable!(musics -> albums (album_id));
+diesel::joinable!(playlists -> users (owner_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     albums,
     analytics,
     artists,
     musics,
+    playlists,
     users,
 );

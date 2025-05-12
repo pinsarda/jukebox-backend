@@ -7,6 +7,7 @@ pub mod errors;
 pub mod search;
 pub mod player;
 pub mod analytics;
+pub mod playlist;
 
 use serde::{Serialize, Deserialize};
 use utoipa::ToSchema;

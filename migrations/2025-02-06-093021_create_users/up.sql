@@ -53,3 +53,16 @@ CREATE TABLE analytics (
   user_id INTEGER NOT NULL,
   date_played TIMESTAMP NOT NULL
 );
+
+CREATE TABLE playlists (
+  id SERIAL PRIMARY KEY,
+  owner_id INTEGER NOT NULL,
+  title TEXT NOT NULL,
+  description TEXT,
+  musics INTEGER[] NOT NULL DEFAULT '{}',
+  fetcher TEXT,
+  fetcher_id TEXT,
+  date_created TIMESTAMP NOT NULL,
+
+  FOREIGN KEY (owner_id) REFERENCES users(id)
+);

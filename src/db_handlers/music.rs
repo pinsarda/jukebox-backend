@@ -4,6 +4,7 @@ use diesel::result::Error;
 use crate::db_handlers::artist::get_artists_by_ids;
 use crate::models::album::Album;
 use crate::models::music::{ Music, NewMusic, RichMusic };
+use crate::models::playlist::Playlist;
 use crate::DbConnection;
 use crate::db_handlers::user::get_user_by_id;
 
@@ -53,6 +54,18 @@ pub fn get_album_musics(conn: &mut DbConnection, album: &Album, user_id: i32) ->
     let album_musics: Vec<Music> = Music::belonging_to(album).select(Music::as_select()).load(conn)?;
 
     let results: Vec<RichMusic> = album_musics.into_iter().map(|music| {
+        to_rich_music(conn, music, user_id).unwrap()
+    }).collect();
+
+    Ok(results)
+}
+
+pub fn get_playlist_musics(conn: &mut DbConnection, playlist: &Playlist, user_id: i32) -> Result<Vec<RichMusic>, Error> {
+    use crate::schema::musics::dsl::*;
+
+    let playlist_musics: Vec<Music> = musics.filter(id.eq_any(playlist.musics.clone())).load::<Music>(conn)?;
+
+    let results: Vec<RichMusic> = playlist_musics.into_iter().map(|music| {
         to_rich_music(conn, music, user_id).unwrap()
     }).collect();
 

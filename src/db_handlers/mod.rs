@@ -3,3 +3,4 @@ pub mod music;
 pub mod album;
 pub mod artist;
 pub mod analytics;
+pub mod playlist;

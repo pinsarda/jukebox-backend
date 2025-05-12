@@ -22,6 +22,7 @@ use actix_web::{ App, HttpServer, middleware::Logger };
 use actix_ws::Session;
 use api::fetcher::{youtube_add, youtube_search, yt_music_add, yt_music_search};
 use api::player::{add_to_queue, clear_queue, move_music_in_queue, pause, seek};
+use api::playlist::{self, create_playlist};
 use api::search::{search, search_albums, search_artists, search_musics};
 use diesel::pg::Pg;
 use diesel::prelude::*;
@@ -144,6 +145,10 @@ async fn main() -> std::io::Result<()> {
             .service(yt_music_search)
             .service(youtube_search)
             .service(youtube_add)
+            // playlist managment
+            .service(playlist::metadata)
+            .service(create_playlist)
+            .service(playlist::add_music)
             // player api
             .service(add_to_queue)
             .service(play)

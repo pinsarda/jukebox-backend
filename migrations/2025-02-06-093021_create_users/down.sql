@@ -1,3 +1,4 @@
+DROP TABLE playlists;
 DROP TABLE users;
 DROP TABLE musics;
 DROP TABLE albums;

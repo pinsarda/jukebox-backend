@@ -97,46 +97,6 @@ impl Fetcher for YtMusicFetcher {
         musics
     }
 
-    async fn search_albums(&self, query: String) -> Vec<FetcherAlbum> {
-        let yt = get_yt_music().await;
-        let search_results = yt.search_albums(query).await.unwrap();
-        let albums = search_results.iter().map(|album| {
-                FetcherAlbum {
-                    fetcher_id: Some(String::from(album.album_id.get_raw())),
-                    title: album.title.clone(),
-                    artists: Vec::from([
-                        FetcherArtist {
-                            fetcher_id: None,
-                            name: album.artist.clone() 
-                    }]),
-                    thumb_url: 
-                        if album.thumbnails.len() > 0 {
-                            Some(album.thumbnails[0].url.clone())
-                        } else {
-                            None
-                        },
-                    // The API makes it hard to search with musics efficiently
-                    // Musics are correctly registered when adding music to library
-                    musics: Vec::new()
-                }
-            }
-        ).collect::<Vec<FetcherAlbum>>();
-        albums
-    }
-
-    async fn search_artists(&self, query: String) -> Vec<FetcherArtist> {
-        let yt = get_yt_music().await;
-        let search_results = yt.search_artists(query).await.unwrap();
-        let artists = search_results.iter().map(|artist| {
-                FetcherArtist {
-                    name: artist.artist.to_string(),
-                    fetcher_id: Some(artist.browse_id.get_raw().to_string())
-                }
-            }
-        ).collect::<Vec<FetcherArtist>>();
-        artists
-    }
-
     fn download(&self, music: Music, path: &std::path::Path) -> Result<(), actix_web::Error> {
         Ok(())
     }
@@ -198,7 +158,11 @@ impl Fetcher for YtMusicFetcher {
     }
 
     async fn get_external_ids(&self, fetcher_music: &FetcherMusic) -> Result<ExternalIds, reqwest::Error> {
-        let mut external_ids = self.musicapi_get_external_ids(fetcher_music).await.unwrap();
+        
+        // Too long waiting time, will investigate a better way to fetch exernal ids
+        // let mut external_ids = self.musicapi_get_external_ids(fetcher_music).await.unwrap();
+        let mut external_ids = ExternalIds { youtube_id: None, spotify_id: None, deezer_id: None, apple_music_id: None };
+
 
         match &fetcher_music.fetcher_id {
             None => (),

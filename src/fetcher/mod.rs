@@ -20,51 +20,8 @@ use rust_fuzzy_search::fuzzy_compare;
 
 pub trait Fetcher {
     async fn search_musics(&self, query: String) -> Vec<FetcherMusic>;
-    async fn search_albums(&self, query: String) -> Vec<FetcherAlbum>;
-    async fn search_artists(&self, query: String) -> Vec<FetcherArtist>;
 
     fn get_id(&self) -> String;
-
-    async fn search(&self, query: String) -> Vec<FetcherSearchResult> {
-
-        let (musics_result, albums_results, artists_result) = tokio::join!(
-            self.search_musics(query.to_string()),
-            self.search_albums(query.to_string()),
-            self.search_artists(query.to_string())
-        );
-
-        let mut results: Vec<FetcherSearchResult> = musics_result.into_iter().map(FetcherSearchResult::Music)
-            .chain(albums_results.into_iter().map(FetcherSearchResult::Album))
-            .chain(artists_result.into_iter().map(FetcherSearchResult::Artist))
-            .collect();
-
-        results.sort_by(|a, b| {
-            let score_a = match a {
-                FetcherSearchResult::Album(album) => {
-                    fuzzy_compare(&query, &album.title)
-                },
-                FetcherSearchResult::Music(music) => {
-                    fuzzy_compare(&query, &music.title)
-                },
-                FetcherSearchResult::Artist(artist) => {
-                    fuzzy_compare(&query, &artist.name)
-                },
-            };
-            let score_b = match b {
-                FetcherSearchResult::Album(album) => {
-                    fuzzy_compare(&query, &album.title)
-                },
-                FetcherSearchResult::Music(music) => {
-                    fuzzy_compare(&query, &music.title)
-                },
-                FetcherSearchResult::Artist(artist) => {
-                    fuzzy_compare(&query, &artist.name)
-                },
-            };
-            score_b.partial_cmp(&score_a).unwrap()
-        });
-        results
-    }
 
     fn download(&self, music: Music, path: &Path) -> Result<(), actix_web::Error>;
     async fn get_album_by_music_data(&self, fetcher_music_data: &FetcherMusic) -> Result<FetcherAlbum, SearchError>;
@@ -127,7 +84,7 @@ pub trait Fetcher {
         let mut out = File::create(dest.join("cover.jpg")).expect("Failed to create thumbnail file");
         let mut cursor = Cursor::new(body);
         io::copy(&mut cursor, &mut out).expect("Failed to copy thumbnail content");
-
+        
     }
 
     async fn add_album(&self, conn: &mut DbConnection, fetcher_album: &FetcherAlbum, origin_user_id: i32) -> Result<(), SearchError> {

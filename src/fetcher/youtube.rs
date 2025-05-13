@@ -115,14 +115,6 @@ impl Fetcher for YoutubeFetcher {
         result
     }
 
-    async fn search_albums(&self, query: String) -> Vec<FetcherAlbum> {
-        Vec::new()
-    }
-
-    async fn search_artists(&self, query: String) -> Vec<FetcherArtist> {
-        Vec::new()
-    }
-
     fn download(&self, music: Music, path: &std::path::Path) -> Result<(), actix_web::Error> {
         Ok(())
     }

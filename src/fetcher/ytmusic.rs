@@ -1,10 +1,12 @@
 use actix_web::http::Error;
+use diesel::expression::is_aggregate::No;
 use ytmapi_rs::{auth::BrowserToken, common::YoutubeID, parse::ParsedSongArtist, YtMusic};
 use std::fs::{self, File};
 use std::io::{self, Cursor, Read};
 use std::path::Path;
 
 use crate::fetcher::Fetcher;
+use crate::models::artist::NewArtist;
 use crate::models::errors::SearchError;
 use crate::models::fetcher::ExternalIds;
 use crate::models::{fetcher::{FetcherAlbum, FetcherArtist, FetcherMusic}, music::Music};
@@ -91,7 +93,7 @@ impl Fetcher for YtMusicFetcher {
                         Some(music.thumbnails[0].url.clone())
                     } else {
                         None
-                    }                
+                    }
             }
         ).collect::<Vec<FetcherMusic>>();
         musics
@@ -99,6 +101,41 @@ impl Fetcher for YtMusicFetcher {
 
     fn download(&self, music: Music, path: &std::path::Path) -> Result<(), actix_web::Error> {
         Ok(())
+    }
+
+    async fn get_artist_data(&self, fetcher_artist: FetcherArtist) -> Result<(NewArtist, Option<String>), diesel::result::Error> {
+        let yt = get_yt_music().await;
+
+        let search_result = yt.search_artists(fetcher_artist.name.clone()).await.unwrap();
+
+        let result = if let Some(first_artist) = search_result.first() {
+            (NewArtist {
+                name: first_artist.artist.clone(),
+                description: None,
+                youtube_id: Some(first_artist.browse_id.get_raw().to_string()),
+                deezer_id: None,
+                spotify_id: None,
+                apple_music_id: None
+            },
+
+            if first_artist.thumbnails.len() > 0 {
+                let thumb_url = first_artist.thumbnails.first().unwrap().url.clone();
+
+                // Dirty workaround to have full size album images
+                let mut split = thumb_url.split('=');
+                let mut big_thumb_url = split.next().unwrap().to_owned();
+                big_thumb_url.push_str("=w3000-h3000-l3000-rj");
+                Some(big_thumb_url)
+            } else {
+                None
+            })
+        } else {
+            (NewArtist::from(fetcher_artist), None)
+        };
+
+        print!("{:?}", result);
+    
+        Ok(result)
     }
 
     async fn get_album_by_music_data(&self, fetcher_music: &FetcherMusic) -> Result<FetcherAlbum, SearchError> {
@@ -147,9 +184,9 @@ impl Fetcher for YtMusicFetcher {
                     if fetcher_music.thumb_url.is_some() {
                         // Dirty workaround to have full size album images 
                         let mut split = fetcher_music.thumb_url.as_ref().unwrap().split('=');
-                        let mut big_thumb_utl = split.next().unwrap().to_owned();
-                        big_thumb_utl.push_str("=w3000-h3000-l3000-rj");
-                        Some(big_thumb_utl)
+                        let mut big_thumb_url = split.next().unwrap().to_owned();
+                        big_thumb_url.push_str("=w3000-h3000-l3000-rj");
+                        Some(big_thumb_url)
                     } else {
                         None
                     }
@@ -158,7 +195,7 @@ impl Fetcher for YtMusicFetcher {
     }
 
     async fn get_external_ids(&self, fetcher_music: &FetcherMusic) -> Result<ExternalIds, reqwest::Error> {
-        
+
         // Too long waiting time, will investigate a better way to fetch exernal ids
         // let mut external_ids = self.musicapi_get_external_ids(fetcher_music).await.unwrap();
         let mut external_ids = ExternalIds { youtube_id: None, spotify_id: None, deezer_id: None, apple_music_id: None };

@@ -35,7 +35,7 @@ pub trait Fetcher {
         }
     }
 
-    fn disambiguate_artists(&self, conn: &mut DbConnection, fetcher_artists: &Vec<FetcherArtist>) -> Result<(Vec<i32>, Vec<FetcherArtist>), Error> {
+    async fn disambiguate_artists(&self, conn: &mut DbConnection, fetcher_artists: &Vec<FetcherArtist>) -> Result<(Vec<i32>, Vec<FetcherArtist>), Error> {
 
         let mut disambiguated_artists = Vec::new();
         let mut artists_to_add = Vec::new();
@@ -52,17 +52,31 @@ pub trait Fetcher {
         Ok((disambiguated_artists, artists_to_add))
     }
 
-    fn regularize_artists(&self, conn: &mut DbConnection, fetcher_artists: &Vec<FetcherArtist>) -> Result<Vec<i32>, Error> {
-        let (mut disambiguated_artists, artists_to_add) = self.disambiguate_artists(conn, fetcher_artists).unwrap();
+    async fn download_artist_thumbnail(&self, thumb_url: String, artist_id: i32) {
+
+    }
+
+    async fn regularize_artists(&self, conn: &mut DbConnection, fetcher_artists: &Vec<FetcherArtist>) -> Result<Vec<i32>, Error> {
+        let (mut disambiguated_artists, artists_to_add) = self.disambiguate_artists(conn, fetcher_artists).await.unwrap();
     
         for fetcher_artist in artists_to_add {
-            let new_artist = NewArtist::from(fetcher_artist);
+            let (new_artist, thumb_url) = self.get_artist_data(fetcher_artist).await.unwrap();
 
             let added_artist = crate::db_handlers::artist::add_artist(conn, new_artist).unwrap();
             disambiguated_artists.push(added_artist.id);
+            if thumb_url.is_some() {
+                let base_path = &std::env::var("STORAGE_PATH").unwrap_or("Storage".to_string());
+                let dest = Path::new(base_path).join("artists").join(format!("{}.jpg", added_artist.id.to_string()));
+
+                self.download_thumb(thumb_url.clone().unwrap().clone().as_str(), &dest).await;
+            }
         }
 
         Ok(disambiguated_artists)
+    }
+
+    async fn get_artist_data(&self, fetcher_artist: FetcherArtist) -> Result<(NewArtist, Option<String>), Error> {
+        Ok((NewArtist::from(fetcher_artist), None))
     }
 
     // TODO : determine if music already exists in database
@@ -80,11 +94,13 @@ pub trait Fetcher {
 
         let resp = reqwest::get(url).await.expect("Couldn't get thumbnail from provider");
         let body = resp.bytes().await.expect("Thumbnail request body invalid");
-        fs::create_dir_all(&dest).unwrap();
-        let mut out = File::create(dest.join("cover.jpg")).expect("Failed to create thumbnail file");
+        if let Some(parent) = dest.parent() {
+            fs::create_dir_all(parent).unwrap();
+        }
+        let mut out = File::create(dest).expect("Failed to create thumbnail file");
         let mut cursor = Cursor::new(body);
         io::copy(&mut cursor, &mut out).expect("Failed to copy thumbnail content");
-        
+
     }
 
     async fn add_album(&self, conn: &mut DbConnection, fetcher_album: &FetcherAlbum, origin_user_id: i32) -> Result<(), SearchError> {
@@ -94,7 +110,7 @@ pub trait Fetcher {
             Err(_) => {
                 let new_album = NewAlbum {
                     title: fetcher_album.title.clone(),
-                    artists_ids: self.regularize_artists(conn, &fetcher_album.artists).unwrap(),
+                    artists_ids: self.regularize_artists(conn, &fetcher_album.artists).await.unwrap(),
                     description: None,
                     fetcher: Some(self.get_id()),
                     origin_user_id: origin_user_id,
@@ -111,7 +127,7 @@ pub trait Fetcher {
         if fetcher_album.thumb_url.is_some() {
 
             let base_path = &std::env::var("STORAGE_PATH").unwrap_or("Storage".to_string());
-            let dest = Path::new(base_path).join(new_album_id.to_string());
+            let dest = Path::new(base_path).join(new_album_id.to_string()).join("cover.jpg");
 
             self.download_thumb(fetcher_album.thumb_url.clone().unwrap().clone().as_str(), &dest).await;
         }
@@ -129,7 +145,7 @@ pub trait Fetcher {
     
         let new_music = NewMusic {
             title: fetcher_music.title.clone(),
-            artists_ids: self.regularize_artists(conn, &fetcher_music.artists).unwrap(),
+            artists_ids: self.regularize_artists(conn, &fetcher_music.artists).await.unwrap(),
             album_id: album_id,
             duration: fetcher_music.duration,
             fetcher: Some(self.get_id()),

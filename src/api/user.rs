@@ -1,8 +1,9 @@
 use actix_identity::Identity;
 use actix_web::web::Json;
-use actix_web::{HttpRequest, HttpResponse, Responder, http::StatusCode};
+use actix_web::{HttpRequest, HttpResponse, Responder, http::StatusCode, web::Query};
 use actix_web::{ web::Data, HttpMessage, Result, post, get };
 use crate::models::user::{ Favorites, NewUser, UserData };
+use crate::models::Id;
 use crate::DbPool;
 use crate::db_handlers::user::{ create_user, get_favorites, get_user, get_user_data, verify_password };
 
@@ -28,12 +29,23 @@ async fn signup(pool: Data<DbPool>, new_user: Json<NewUser>) -> impl Responder {
 }
 
 #[utoipa::path()]
-#[get("/user/get_info")]
-/// Get user info
-async fn get_info(id: Identity, pool: Data<DbPool>) -> Result<Json<UserData>> {
+#[get("/user/get_personal_info")]
+/// Get requesting user info
+async fn get_personal_info(id: Identity, pool: Data<DbPool>) -> Result<Json<UserData>> {
 
     let conn = &mut pool.get().unwrap();
     let user_data = get_user_data(conn, id.id().unwrap().parse::<i32>().unwrap());
+
+    Ok(Json(user_data.unwrap()))
+}
+
+#[utoipa::path()]
+#[get("/user/get_info")]
+/// Get user public info
+async fn get_info(_id: Identity, pool: Data<DbPool>, query_data: Query<Id>) -> Result<Json<UserData>> {
+
+    let conn = &mut pool.get().unwrap();
+    let user_data = get_user_data(conn, query_data.id);
 
     Ok(Json(user_data.unwrap()))
 }

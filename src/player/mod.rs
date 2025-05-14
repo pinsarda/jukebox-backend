@@ -174,6 +174,16 @@ impl Player {
         }
     }
 
+    pub fn edit_queue_index(&self, index: i32) {
+        let mut queue_index = self.queue_index.lock().unwrap();
+        let queue_len = self.queue.lock().unwrap().len();
+
+        if index >= 0 && index < queue_len as i32 {
+            *queue_index = index;
+            print!("{} {}", queue_index, queue_len);
+        }
+    }
+
     pub fn clear_queue(&self) {
         let mut queue_index = self.queue_index.lock().unwrap();
         let mut queue = self.queue.lock().unwrap();

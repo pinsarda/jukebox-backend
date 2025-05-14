@@ -16,3 +16,8 @@ use utoipa::ToSchema;
 pub struct Id {
     pub id: i32
 }
+
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+pub struct Index {
+    pub index: i32
+}

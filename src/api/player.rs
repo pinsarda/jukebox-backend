@@ -4,7 +4,7 @@ use futures_util::StreamExt as _;
 use actix_identity::Identity;
 use actix_web::{ get, Error, post, web::{self, Data, Json, Payload}, HttpRequest, HttpResponse, Responder };
 
-use crate::{api::player, db_handlers::{analytics::log_playback, music::{get_music_by_id, to_rich_music}}, models::{player::{MoveMusicInQueueRequest, PlayerState, RichPlayerState, SeekRequest, VolumeChangeRequest}, Id}, player::Player, DbPool};
+use crate::{api::player, db_handlers::{analytics::log_playback, music::{get_music_by_id, to_rich_music}}, models::{player::{MoveMusicInQueueRequest, PlayerState, RichPlayerState, SeekRequest, VolumeChangeRequest}, Id, Index}, player::Player, DbPool};
 
 #[utoipa::path(
     request_body = Id,
@@ -137,6 +137,21 @@ async fn move_music_in_queue(_id: Identity, player: Data<Player>, socket_session
     notify_sessions(socket_sessions, String::from("queue update")).await;
     HttpResponse::Ok().body("Updated Queue succesfully")
 }
+
+#[utoipa::path(
+    responses(
+        (status = OK, body=Index),
+        (status = FORBIDDEN)
+    )
+)]
+#[post("/player/move_in_queue")]
+/// Change the place of a music in the queue
+async fn move_in_queue(_id: Identity, player: Data<Player>, socket_sessions: Data<Mutex<Vec<Session>>>, query_data: Json<Index>) -> impl Responder {
+    player.edit_queue_index(query_data.index);
+    notify_sessions(socket_sessions, String::from("queue update")).await;
+    HttpResponse::Ok().body("Updated Queue index succesfully")
+}
+
 
 #[utoipa::path(
     responses(

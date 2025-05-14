@@ -104,6 +104,84 @@ pub fn remove_favorite_music(conn: &mut DbConnection, user_id: i32, music_id: i3
     Ok(())
 }
 
+/// TODO : Adds an album to a user's list of favorites
+pub fn add_favorite_album(conn: &mut DbConnection, user_id: i32, album_id: i32) -> Result<(), Error> {
+
+    let user = get_user_by_id(conn, user_id)?;
+
+    let mut new_favorites = user.favorite_albums.clone();
+    if new_favorites.contains(&album_id) {
+        return Ok(());
+    }
+    new_favorites.push(album_id);
+
+    diesel::update(&user.clone())
+        .set(crate::schema::users::favorite_albums.eq(new_favorites))
+        .execute(conn)?;
+
+    Ok(())
+}
+
+/// TODO : Remove an album from a user's list of favorites
+pub fn remove_favorite_album(conn: &mut DbConnection, user_id: i32, album_id: i32) -> Result<(), Error> {
+
+    let user = get_user_by_id(conn, user_id)?;
+
+    let mut new_favorites = user.favorite_albums.clone();
+    if !new_favorites.contains(&album_id) {
+        return Ok(());
+    }
+
+    if let Some(pos) = new_favorites.iter().position(|x| *x == album_id) {
+        new_favorites.remove(pos);
+    }
+
+    diesel::update(&user.clone())
+        .set(crate::schema::users::favorite_albums.eq(new_favorites))
+        .execute(conn)?;
+
+    Ok(())
+}
+
+/// TODO : Adds an artist to a user's list of favorites
+pub fn add_favorite_artist(conn: &mut DbConnection, user_id: i32, artist_id: i32) -> Result<(), Error> {
+
+    let user = get_user_by_id(conn, user_id)?;
+
+    let mut new_favorites = user.favorite_artists.clone();
+    if new_favorites.contains(&artist_id) {
+        return Ok(());
+    }
+    new_favorites.push(artist_id);
+
+    diesel::update(&user.clone())
+        .set(crate::schema::users::favorite_artists.eq(new_favorites))
+        .execute(conn)?;
+
+    Ok(())
+}
+
+/// TODO : Remove an artist from a user's list of favorites
+pub fn remove_favorite_artist(conn: &mut DbConnection, user_id: i32, artist_id: i32) -> Result<(), Error> {
+
+    let user = get_user_by_id(conn, user_id)?;
+
+    let mut new_favorites = user.favorite_albums.clone();
+    if !new_favorites.contains(&artist_id) {
+        return Ok(());
+    }
+
+    if let Some(pos) = new_favorites.iter().position(|x| *x == artist_id) {
+        new_favorites.remove(pos);
+    }
+
+    diesel::update(&user.clone())
+        .set(crate::schema::users::favorite_artists.eq(new_favorites))
+        .execute(conn)?;
+
+    Ok(())
+}
+
 pub fn hash_password(password: String) -> Result<String, argon2::Error> {
     let salt: [u8; 32] = rand::thread_rng().gen();
     let config = Config::default();

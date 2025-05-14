@@ -46,7 +46,7 @@ async fn add_favorite_music(id: Identity, pool: Data<DbPool>, query_data: Json<I
     let result = crate::db_handlers::user::add_favorite_music(conn, user_id, query_data.id);
 
     match result {
-        Ok(_) => HttpResponse::Ok().body("Favorited music"),
+        Ok(_) => HttpResponse::Ok().body("Song added to favorites."),
         Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
     }    
 }
@@ -63,7 +63,7 @@ async fn remove_favorite_music(id: Identity, pool: Data<DbPool>, query_data: Jso
     let result = crate::db_handlers::user::remove_favorite_music(conn, user_id, query_data.id);
 
     match result {
-        Ok(_) => HttpResponse::Ok().body("Removed favorite for music"),
+        Ok(_) => HttpResponse::Ok().body("Song removed from favorites."),
         Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
     }    
 }

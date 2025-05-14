@@ -32,9 +32,9 @@ use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 
 use api::{player::{ play, stop, next, previous, state, socket, set_volume }};
 use api::user::{ favorites, get_info, login, signup };
-use api::music::{self, add_favorite_music, add_music, remove_favorite_music};
-use api::album::{self, add_album};
-use api::artist::{self, add_artist};
+use api::music::{self, add_music, add_favorite_music, remove_favorite_music};
+use api::album::{self, add_album, add_favorite_album, remove_favorite_album};
+use api::artist::{self, add_artist, add_favorite_artist, remove_favorite_artist};
 use rodio::{OutputStream, OutputStreamHandle};
 use utoipa_actix_web::AppExt;
 use utoipa_swagger_ui::SwaggerUi;
@@ -120,35 +120,47 @@ async fn main() -> std::io::Result<()> {
             .wrap(Logger::default())
             .service(Files::new("/static", storage_path.to_string()).prefer_utf8(true))
             .into_utoipa_app()
-            // user managment
+
+            // user management
             .service(signup)
             .service(login)
             .service(get_info)
             .service(favorites)
-            // music, album and artists managment
+
+            // music, album and artists management
             .service(music::metadata)
             .service(add_music)
             .service(add_favorite_music)
             .service(remove_favorite_music)
+
             .service(album::metadata)
             .service(add_album)
+            .service(add_favorite_album)
+            .service(remove_favorite_album)
+
             .service(artist::metadata)
             .service(add_artist)
+            .service(add_favorite_artist)
+            .service(remove_favorite_artist)
             .service(artist::get_albums)
+
             // database search
             .service(search_musics) 
             .service(search_albums) 
             .service(search_artists) 
             .service(search) 
+
             // fetching
             .service(yt_music_add)
             .service(yt_music_search)
             .service(youtube_search)
             .service(youtube_add)
-            // playlist managment
+
+            // playlist management
             .service(playlist::metadata)
             .service(create_playlist)
             .service(playlist::add_music)
+
             // player api
             .service(add_to_queue)
             .service(play)

@@ -108,7 +108,7 @@ pub trait Fetcher {
         let new_album_id = match self.disambiguate_album(conn, &fetcher_album) {
             Ok(_) => return Err(SearchError::new("Album already exists in database")),
             Err(_) => {
-                let new_album = NewAlbum {
+                let mut new_album = NewAlbum {
                     title: fetcher_album.title.clone(),
                     artists_ids: self.regularize_artists(conn, &fetcher_album.artists).await.unwrap(),
                     description: None,
@@ -118,6 +118,10 @@ pub trait Fetcher {
                     spotify_id: None,
                     deezer_id: None,
                     apple_music_id: None
+                };
+                match self.get_id().as_str() {
+                    "yt_music" => new_album.youtube_id = fetcher_album.fetcher_id.clone(),
+                    _ => ()
                 };
                 let added_album = crate::db_handlers::album::add_album(conn, new_album).unwrap();
                 Ok(added_album.id)

@@ -4,10 +4,13 @@ use diesel::result::Error;
 use crate::db_handlers::music::to_rich_music;
 use crate::models::music::Music;
 use crate::models::music::RichMusic;
+use crate::models::artist::RichArtist;
+use crate::models::album::RichAlbum;
 use crate::models::user::{ User, NewUser, UserData };
 use crate::DbConnection;
 use argon2::Config;
 use rand::Rng;
+use crate::models::user::Favorites;
 
 pub fn create_user(conn: &mut DbConnection, mut new_user: NewUser) -> Result<usize, Error> {
     use crate::schema::users::dsl::*;
@@ -193,26 +196,54 @@ pub fn verify_password(hash: String, password: String) -> Result<bool, argon2::E
     argon2::verify_encoded(&hash, password.as_bytes())
 }
 
-pub fn get_favorites(conn: &mut DbConnection, user_id: i32) -> Result<Vec<RichMusic>, Error> {
+pub fn get_favorites(conn: &mut DbConnection, user_id: i32) -> Result<Favorites, Error> {
     use crate::schema::users::dsl::users;
-
-    let ids: Vec<i32> = users
-        .find(user_id)
-        .select(crate::schema::users::favorite_musics)
-        .first(conn)
-        .unwrap();
-
     use crate::schema::musics::dsl::musics;
+    use crate::schema::albums::dsl::albums;
+    use crate::schema::artists::dsl::artists;
+    use crate::db_handlers::album::to_rich_album;
+    use crate::db_handlers::artist::to_rich_artist;
+    use crate::models::album::Album;
+    use crate::models::artist::Artist;
+    use crate::models::user::Favorites;
 
+    // Get the user to extract favorite IDs
+    let user = get_user_by_id(conn, user_id)?;
+
+    // Fetch favorite musics (same as original implementation)
     let favorite_musics: Vec<Music> = musics
-        .filter(crate::schema::musics::id.eq_any(ids))
+        .filter(crate::schema::musics::id.eq_any(user.favorite_musics.clone()))
         .select(Music::as_select())
-        .load::<Music>(conn)
-        .unwrap();
+        .load::<Music>(conn)?;
 
-    let results: Vec<RichMusic> = favorite_musics.into_iter().map(|music| {
+    let rich_musics: Vec<RichMusic> = favorite_musics.into_iter().map(|music| {
         to_rich_music(conn, music, user_id).unwrap()
     }).collect();
 
-    Ok(results)
+    // Fetch favorite albums
+    let favorite_albums: Vec<Album> = albums
+        .filter(crate::schema::albums::id.eq_any(user.favorite_albums.clone()))
+        .select(Album::as_select())
+        .load::<Album>(conn)?;
+
+    let rich_albums: Vec<RichAlbum> = favorite_albums.into_iter().map(|album| {
+        to_rich_album(conn, album, user_id).unwrap()
+    }).collect();
+
+    // Fetch favorite artists
+    let favorite_artists: Vec<Artist> = artists
+        .filter(crate::schema::artists::id.eq_any(user.favorite_artists.clone()))
+        .select(Artist::as_select())
+        .load::<Artist>(conn)?;
+
+    let rich_artists: Vec<RichArtist> = favorite_artists.into_iter().map(|artist| {
+        to_rich_artist(conn, artist, user_id).unwrap()
+    }).collect();
+
+    // Combine into Favorites struct
+    Ok(Favorites {
+        musics: rich_musics,
+        albums: rich_albums,
+        artists: rich_artists
+    })
 }

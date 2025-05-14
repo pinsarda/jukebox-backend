@@ -75,17 +75,12 @@ async fn login(pool: Data<DbPool>, request: HttpRequest, new_user: Json<NewUser>
 
 #[utoipa::path()]
 #[get("/user/favorites")]
-/// Get user favorites (only works with musics for now)
+/// Get user favorites (works for songs, should work for albums and artists)
 async fn favorites(id: Identity, pool: Data<DbPool>) -> Result<Json<Favorites>> {
-
     let conn = &mut pool.get().unwrap();
     let user_id = id.id().unwrap().parse::<i32>().unwrap();
 
-    let result = Favorites {
-        artists: Vec::new(),
-        albums: Vec::new(),
-        musics: get_favorites(conn, user_id).unwrap()
-    };
-
+    let result = get_favorites(conn, user_id).unwrap();
+    
     Ok(Json(result))
 }

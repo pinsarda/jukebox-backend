@@ -180,7 +180,6 @@ impl Player {
 
         if index >= 0 && index < queue_len as i32 {
             *queue_index = index;
-            print!("{} {}", queue_index, queue_len);
         }
     }
 

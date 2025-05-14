@@ -181,6 +181,13 @@ impl Player {
         if index >= 0 && index < queue_len as i32 {
             *queue_index = index;
         }
+        drop(queue_index);
+
+        let sink = self.sink.lock().unwrap();
+        sink.clear();
+        drop(sink);
+
+        self.restart_sink();
     }
 
     pub fn clear_queue(&self) {

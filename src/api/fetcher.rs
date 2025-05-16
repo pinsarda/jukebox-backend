@@ -8,7 +8,8 @@ use crate::{fetcher::{youtube::YoutubeFetcher, ytmusic::YtMusicFetcher, Fetcher}
     responses(
         (status = OK, body = Vec<FetcherMusic>),
         (status = FORBIDDEN)
-    )
+    ),
+    tag = "fetcher"
 )]
 #[get("/fetcher/ytmusic/search")]
 /// Get search results from Youtube Music
@@ -23,7 +24,8 @@ async fn yt_music_search(_id: Identity, pool: Data<DbPool>, data: Query<SearchQu
     responses(
         (status = OK),
         (status = FORBIDDEN)
-    )
+    ),
+    tag = "fetcher"
 )]
 #[post("/fetcher/ytmusic/add")]
 /// Add a music from youtube music
@@ -42,7 +44,8 @@ async fn yt_music_add(id: Identity, pool: Data<DbPool>, data: Json<FetcherMusic>
     responses(
         (status = OK, body = Vec<FetcherMusic>),
         (status = FORBIDDEN)
-    )
+    ),
+    tag = "fetcher"
 )]
 #[get("/fetcher/youtube/search")]
 /// Get search results from Youtube
@@ -57,7 +60,8 @@ async fn youtube_search(_id: Identity, pool: Data<DbPool>, data: Query<SearchQue
     responses(
         (status = OK),
         (status = FORBIDDEN)
-    )
+    ),
+    tag = "fetcher"
 )]
 #[post("/fetcher/youtube/add")]
 /// Add a music from Youtube

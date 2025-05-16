@@ -7,7 +7,14 @@ use crate::DbPool;
 use crate::models::Id;
 
 
-#[utoipa::path()]
+#[utoipa::path(
+    responses(
+        (status = OK, description = "Successfully retrieved playlist metadata"),
+        (status = NOT_FOUND, description = "Playlist not found"),
+        (status = UNAUTHORIZED, description = "Unauthorized access")
+    ),
+    tag = "playlist"
+)]
 #[get("/playlist/metadata")]
 /// Get a playlist metadata
 async fn metadata(id: Identity, pool: Data<DbPool>, query_data: Query<Id>) -> Result<Json<RichPlaylist>, Error> {
@@ -21,7 +28,15 @@ async fn metadata(id: Identity, pool: Data<DbPool>, query_data: Query<Id>) -> Re
     Ok(Json(rich_playlist))
 }
 
-#[utoipa::path()]
+#[utoipa::path(
+    request_body = NewPlaylist,
+    responses(
+        (status = CREATED, description = "Playlist successfully created"),
+        (status = BAD_REQUEST, description = "Invalid playlist data provided"),
+        (status = UNAUTHORIZED, description = "Unauthorized access")
+    ),
+    tag = "playlist"
+)]
 #[post("/playlist/create")]
 /// Create a playlist
 async fn create_playlist(id: Identity, pool: Data<DbPool>, new_playlist: Json<NewPlaylist>) -> Result<Json<Playlist>, Error> {
@@ -43,7 +58,16 @@ async fn create_playlist(id: Identity, pool: Data<DbPool>, new_playlist: Json<Ne
     Ok(Json(result))
 }
 
-#[utoipa::path()]
+#[utoipa::path(
+    request_body = MusicAddRequest,
+    responses(
+        (status = OK, description = "Music successfully added to playlist"),
+        (status = BAD_REQUEST, description = "Invalid request data provided"),
+        (status = UNAUTHORIZED, description = "Unauthorized access"),
+        (status = INTERNAL_SERVER_ERROR, description = "An error occurred while adding music to the playlist")
+    ),
+    tag = "playlist"
+)]
 #[post("/playlist/add_music")]
 /// Add a music to a playlist
 async fn add_music(_id: Identity, pool: Data<DbPool>, query_data: Json<MusicAddRequest>) -> impl Responder {

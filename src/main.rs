@@ -24,6 +24,7 @@ use api::fetcher::{youtube_add, youtube_search, yt_music_add, yt_music_search};
 use api::player::{add_to_queue, clear_queue, move_in_queue, move_music_in_queue, pause, seek};
 use api::playlist::{self, create_playlist};
 use api::search::{search, search_albums, search_artists, search_musics};
+use diesel::expression::is_aggregate::No;
 use diesel::pg::Pg;
 use diesel::prelude::*;
 use diesel::r2d2::ConnectionManager;
@@ -36,6 +37,8 @@ use api::music::{self, add_favorite_music, add_music, remove_favorite_music};
 use api::album::{self, add_album};
 use api::artist::{self, add_artist};
 use rodio::{OutputStream, OutputStreamHandle};
+use utoipa::openapi::{Contact, Info, License};
+use utoipa::OpenApi;
 use utoipa_actix_web::AppExt;
 use utoipa_swagger_ui::SwaggerUi;
 
@@ -163,7 +166,19 @@ async fn main() -> std::io::Result<()> {
             .service(clear_queue)
             .service(state)
             .service(socket)
-            .openapi_service(|api| {
+            .openapi_service(|mut api| {
+                let mut info = Info::default();
+                info.title = "Jukebox".to_string();
+                info.description = Some("An open jukebox to control music from a local network".to_string());
+                info.version = "0.3".to_string();
+
+                let mut license = License::default();
+                license.name = "GNU General Public License v3.0 or later".to_string();
+                license.identifier = Some("GPL-3.0-or-later".to_string());
+
+                info.license = Some(license);
+
+                api.info = info;
                 SwaggerUi::new("/swagger-ui/{_:.*}").url("/api/openapi.json", api)
             })
             .into_app()

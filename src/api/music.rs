@@ -4,7 +4,14 @@ use crate::{db_handlers::music::{get_music_by_id, to_rich_music}, models::music:
 use crate::DbPool;
 use crate::models::Id;
 
-#[utoipa::path()]
+#[utoipa::path(
+    responses(
+        (status = OK, description = "Successfully retrieved music metadata", body = RichMusic),
+        (status = NOT_FOUND, description = "Music not found"),
+        (status = UNAUTHORIZED, description = "Unauthorized access")
+    ),
+    tag = "music"
+)]
 #[get("/music/metadata")]
 /// Get music metadata
 async fn metadata(id: Identity, pool: Data<DbPool>, query_data: Query<Id>) -> Result<Json<RichMusic>, Error> {
@@ -19,7 +26,15 @@ async fn metadata(id: Identity, pool: Data<DbPool>, query_data: Query<Id>) -> Re
     Ok(Json(rich_music.unwrap()))
 }
 
-#[utoipa::path()]
+#[utoipa::path(
+    request_body = NewMusic,
+    responses(
+        (status = CREATED, description = "Music successfully added", body = NewMusic),
+        (status = BAD_REQUEST, description = "Invalid music data provided"),
+        (status = UNAUTHORIZED, description = "Unauthorized access")
+    ),
+    tag = "music"
+)]
 #[post("/music/add")]
 /// Add a music to the database
 async fn add_music(_id: Identity, pool: Data<DbPool>, new_music: Json<NewMusic>) -> Result<Json<NewMusic>, Error> {
@@ -34,9 +49,18 @@ async fn add_music(_id: Identity, pool: Data<DbPool>, new_music: Json<NewMusic>)
     Ok(Json(result))
 }
 
-#[utoipa::path()]
+#[utoipa::path(
+    request_body = Id,
+    responses(
+        (status = OK, description = "Music successfully favorited"),
+        (status = BAD_REQUEST, description = "Invalid music ID provided"),
+        (status = UNAUTHORIZED, description = "Unauthorized access"),
+        (status = INTERNAL_SERVER_ERROR, description = "An error occurred while favoriting the music")
+    ),
+    tag = "music"
+)]
 #[post("/music/add_favorite")]
-/// Add a music to the database
+/// Add a music to favorites
 async fn add_favorite_music(id: Identity, pool: Data<DbPool>, query_data: Json<Id>) -> impl Responder {
     
     let conn = &mut pool.get().unwrap();
@@ -51,9 +75,18 @@ async fn add_favorite_music(id: Identity, pool: Data<DbPool>, query_data: Json<I
     }    
 }
 
-#[utoipa::path()]
+#[utoipa::path(
+    request_body = Id,
+    responses(
+        (status = OK, description = "Music successfully removed from favorites"),
+        (status = BAD_REQUEST, description = "Invalid music ID provided"),
+        (status = UNAUTHORIZED, description = "Unauthorized access"),
+        (status = INTERNAL_SERVER_ERROR, description = "An error occurred while removing the favorite")
+    ),
+    tag = "music"
+)]
 #[post("/music/remove_favorite")]
-/// Add a music to the database
+/// Remove a music from favorites
 async fn remove_favorite_music(id: Identity, pool: Data<DbPool>, query_data: Json<Id>) -> impl Responder {
     
     let conn = &mut pool.get().unwrap();

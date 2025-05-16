@@ -5,7 +5,14 @@ use crate::DbPool;
 use crate::models::Id;
 
 
-#[utoipa::path()]
+#[utoipa::path(
+    responses(
+        (status = OK, description = "Successfully retrieved album metadata", body = RichAlbum),
+        (status = NOT_FOUND, description = "Album not found"),
+        (status = UNAUTHORIZED, description = "Unauthorized access")
+    ),
+    tag = "album"
+)]
 #[get("/album/metadata")]
 /// Get an album metadata
 async fn metadata(id: Identity, pool: Data<DbPool>, query_data: Query<Id>) -> Result<Json<RichAlbum>, Error> {
@@ -20,7 +27,15 @@ async fn metadata(id: Identity, pool: Data<DbPool>, query_data: Query<Id>) -> Re
     Ok(Json(rich_album))
 }
 
-#[utoipa::path()]
+#[utoipa::path(
+    request_body = NewAlbum,
+    responses(
+        (status = CREATED, description = "Album successfully added", body = Album),
+        (status = BAD_REQUEST, description = "Invalid album data provided"),
+        (status = UNAUTHORIZED, description = "Unauthorized access")
+    ),
+    tag = "album"
+)]
 #[post("/album/add")]
 /// Add an album to the database
 async fn add_album(id: Identity, pool: Data<DbPool>, new_album: Json<NewAlbum>) -> Result<Json<Album>, Error> {

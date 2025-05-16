@@ -6,12 +6,13 @@ use crate::DbPool;
 #[utoipa::path(
     request_body = SearchQuery,
     responses(
-        (status = OK, body = Vec<RichMusic>),
-        (status = FORBIDDEN)
-    )
+        (status = OK, description = "Successfully retrieved search results for musics", body = Vec<RichMusic>),
+        (status = FORBIDDEN, description = "Access forbidden")
+    ),
+    tag = "search"
 )]
 #[get("/search_musics")]
-/// Get search results of a query
+/// Get search results of a query for musics
 async fn search_musics(id: Identity, pool: Data<DbPool>, query_data: Query<SearchQuery>) -> Result<Json<Vec<RichMusic>>, Error> {
 
     let conn = &mut pool.get().unwrap();
@@ -26,12 +27,13 @@ async fn search_musics(id: Identity, pool: Data<DbPool>, query_data: Query<Searc
 #[utoipa::path(
     request_body = SearchQuery,
     responses(
-        (status = OK, body = Vec<RichMusic>),
-        (status = FORBIDDEN)
-    )
+        (status = OK, description = "Successfully retrieved search results for albums", body = Vec<RichAlbum>),
+        (status = FORBIDDEN, description = "Access forbidden")
+    ),
+    tag = "search"
 )]
 #[get("/search_albums")]
-/// Get search results of a query
+/// Get search results of a query for albums
 async fn search_albums(id: Identity, pool: Data<DbPool>, query_data: Query<SearchQuery>) -> Result<Json<Vec<RichAlbum>>, Error> {
 
     let conn = &mut pool.get().unwrap();
@@ -46,12 +48,13 @@ async fn search_albums(id: Identity, pool: Data<DbPool>, query_data: Query<Searc
 #[utoipa::path(
     request_body = SearchQuery,
     responses(
-        (status = OK, body = Vec<RichMusic>),
-        (status = FORBIDDEN)
-    )
+        (status = OK, description = "Successfully retrieved search results for artists", body = Vec<RichArtist>),
+        (status = FORBIDDEN, description = "Access forbidden")
+    ),
+    tag = "search"
 )]
 #[get("/search_artists")]
-/// Get search results of a query
+/// Get search results of a query for artists
 async fn search_artists(id: Identity, pool: Data<DbPool>, query_data: Query<SearchQuery>) -> Result<Json<Vec<RichArtist>>, Error> {
 
     let conn = &mut pool.get().unwrap();
@@ -66,12 +69,13 @@ async fn search_artists(id: Identity, pool: Data<DbPool>, query_data: Query<Sear
 #[utoipa::path(
     request_body = SearchQuery,
     responses(
-        (status = OK, body = SearchResult),
-        (status = FORBIDDEN)
-    )
+        (status = OK, description = "Successfully retrieved comprehensive search results", body = SearchResult),
+        (status = FORBIDDEN, description = "Access forbidden")
+    ),
+    tag = "search"
 )]
 #[get("/search")]
-/// Get search results of a query
+/// Get comprehensive search results of a query
 async fn search(id: Identity, pool: Data<DbPool>, query_data: Query<SearchQuery>) -> Result<Json<SearchResult>, Error> {
     let user_id = id.id().unwrap().parse::<i32>().unwrap();
     let query = query_data.query.to_string();

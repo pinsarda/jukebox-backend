@@ -5,7 +5,14 @@ use crate::DbPool;
 use crate::models::Id;
 
 
-#[utoipa::path()]
+#[utoipa::path(
+    responses(
+        (status = OK, description = "Successfully retrieved artist metadata", body = RichArtist),
+        (status = NOT_FOUND, description = "Artist not found"),
+        (status = UNAUTHORIZED, description = "Unauthorized access")
+    ),
+    tag = "artist"
+)]
 #[get("/artist/metadata")]
 /// Get an artist metadata
 async fn metadata(id: Identity, pool: Data<DbPool>, query_data: Query<Id>) -> Result<Json<RichArtist>, Error> {
@@ -20,7 +27,15 @@ async fn metadata(id: Identity, pool: Data<DbPool>, query_data: Query<Id>) -> Re
     Ok(Json(rich_artist.unwrap()))
 }
 
-#[utoipa::path()]
+#[utoipa::path(
+    request_body = NewArtist,
+    responses(
+        (status = CREATED, description = "Artist successfully added", body = Artist),
+        (status = BAD_REQUEST, description = "Invalid artist data provided"),
+        (status = UNAUTHORIZED, description = "Unauthorized access")
+    ),
+    tag = "artist"
+)]
 #[post("/artist/add")]
 /// Add an artist to the database
 async fn add_artist(_id: Identity, pool: Data<DbPool>, new_artist: Json<NewArtist>) -> Result<Json<Artist>, Error> {
@@ -32,9 +47,16 @@ async fn add_artist(_id: Identity, pool: Data<DbPool>, new_artist: Json<NewArtis
     Ok(Json(result))
 }
 
-#[utoipa::path()]
+#[utoipa::path(
+    responses(
+        (status = OK, description = "Successfully retrieved albums for the artist", body = Vec<RichAlbum>),
+        (status = NOT_FOUND, description = "Artist not found"),
+        (status = UNAUTHORIZED, description = "Unauthorized access")
+    ),
+    tag = "artist"
+)]
 #[get("/artist/get_albums")]
-/// Add an artist to the database
+/// Get albums by an artist
 async fn get_albums(id: Identity, pool: Data<DbPool>, query_data: Query<Id>) -> Result<Json<Vec<RichAlbum>>, Error> {
 
     let conn = &mut pool.get().unwrap();

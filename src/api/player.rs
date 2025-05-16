@@ -11,7 +11,8 @@ use crate::{db_handlers::{analytics::log_playback, music::{get_music_by_id, to_r
     responses(
         (status = OK),
         (status = FORBIDDEN)
-    )
+    ),
+    tag = "player"
 )]
 #[post("/player/add_to_queue")]
 /// Add music to queue
@@ -32,7 +33,8 @@ async fn add_to_queue(id: Identity, pool: Data<DbPool>, player: Data<Player>, qu
     responses(
         (status = OK),
         (status = FORBIDDEN)
-    )
+    ),
+    tag = "player"
 )]
 #[post("/player/play")]
 /// Start playback of enqueued music
@@ -46,7 +48,8 @@ async fn play(_id: Identity, player: Data<Player>, socket_sessions: Data<Mutex<V
     responses(
         (status = OK),
         (status = FORBIDDEN)
-    )
+    ),
+    tag = "player"
 )]
 #[post("/player/pause")]
 /// Pause music playback
@@ -60,7 +63,8 @@ async fn pause(_id: Identity, player: Data<Player>, socket_sessions: Data<Mutex<
     responses(
         (status = OK),
         (status = FORBIDDEN)
-    )
+    ),
+    tag = "player"
 )]
 #[post("/player/stop")]
 /// Stop music playback
@@ -72,7 +76,8 @@ async fn stop() -> impl Responder {
     responses(
         (status = OK),
         (status = FORBIDDEN)
-    )
+    ),
+    tag = "player"
 )]
 #[post("/player/next")]
 /// Skip to next music in queue
@@ -86,7 +91,8 @@ async fn next(_id: Identity, player: Data<Player>, socket_sessions: Data<Mutex<V
     responses(
         (status = OK),
         (status = FORBIDDEN)
-    )
+    ),
+    tag = "player"
 )]
 #[post("/player/previous")]
 /// Skip to previous music in queue
@@ -100,10 +106,11 @@ async fn previous(_id: Identity, player: Data<Player>, socket_sessions: Data<Mut
     responses(
         (status = OK, body=SeekRequest),
         (status = FORBIDDEN)
-    )
+    ),
+    tag = "player"
 )]
 #[post("/player/seek")]
-/// Seek to 
+/// Seek to a time in the currently playing music
 async fn seek(_id: Identity, player: Data<Player>, socket_sessions: Data<Mutex<Vec<Session>>>, query_data: Json<SeekRequest>) -> impl Responder {
     player.seek(Duration::from_millis(query_data.pos));
     notify_sessions(socket_sessions, String::from("seeking")).await;
@@ -114,10 +121,11 @@ async fn seek(_id: Identity, player: Data<Player>, socket_sessions: Data<Mutex<V
     responses(
         (status = OK, body=VolumeChangeRequest),
         (status = FORBIDDEN)
-    )
+    ),
+    tag = "player"
 )]
 #[post("/player/set_volume")]
-/// Set volume
+/// Set music volume
 async fn set_volume(_id: Identity, player: Data<Player>, socket_sessions: Data<Mutex<Vec<Session>>>, query_data: Json<VolumeChangeRequest>) -> impl Responder {
     player.set_volume(query_data.volume);
     notify_sessions(socket_sessions, String::from("volume adjustment")).await;
@@ -128,7 +136,8 @@ async fn set_volume(_id: Identity, player: Data<Player>, socket_sessions: Data<M
     responses(
         (status = OK, body=MoveMusicInQueueRequest),
         (status = FORBIDDEN)
-    )
+    ),
+    tag = "player"
 )]
 #[post("/player/move_music_in_queue")]
 /// Change the place of a music in the queue
@@ -142,10 +151,11 @@ async fn move_music_in_queue(_id: Identity, player: Data<Player>, socket_session
     responses(
         (status = OK, body=Index),
         (status = FORBIDDEN)
-    )
+    ),
+    tag = "player"
 )]
 #[post("/player/move_in_queue")]
-/// Change the place of a music in the queue
+/// Plays the music at the given index in the queue
 async fn move_in_queue(_id: Identity, player: Data<Player>, socket_sessions: Data<Mutex<Vec<Session>>>, query_data: Json<Index>) -> impl Responder {
     player.edit_queue_index(query_data.index);
     notify_sessions(socket_sessions, String::from("queue update")).await;
@@ -157,7 +167,8 @@ async fn move_in_queue(_id: Identity, player: Data<Player>, socket_sessions: Dat
     responses(
         (status = OK),
         (status = FORBIDDEN)
-    )
+    ),
+    tag = "player"
 )]
 #[post("/player/clear_queue")]
 /// Clear the queue
@@ -171,7 +182,8 @@ async fn clear_queue(_id: Identity, player: Data<Player>, socket_sessions: Data<
     responses(
         (status = OK, body=RichPlayerState),
         (status = FORBIDDEN)
-    )
+    ),
+    tag = "player"
 )]
 #[get("/player/state")]
 /// Get player state
@@ -194,8 +206,9 @@ async fn state(id: Identity, pool: Data<DbPool>, player: Data<Player>) -> Result
     Ok(Json(rich_player_state))
 }
 
-#[utoipa::path()]
+#[utoipa::path(tag = "socket")]
 #[get("/player/socket")]
+/// Connect to the shared state websocket, allows to be notified when a change is made to the playback state
 async fn socket(req: HttpRequest, stream: web::Payload, socket_sessions: Data<Mutex<Vec<Session>>>) -> Result<HttpResponse, Error> {
     let (res, session, _stream) = actix_ws::handle(&req, stream)?;
 

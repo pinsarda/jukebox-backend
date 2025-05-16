@@ -4,7 +4,7 @@ use std::sync::{Arc, Mutex};
 use std::fs::File;
 use std::io::BufReader;
 use std::time::Duration;
-use rodio::{queue, OutputStreamHandle, Sink, Source};
+use rodio::{OutputStreamHandle, Sink, Source};
 use rodio::Decoder;
 use source::SourceWithFn;
 

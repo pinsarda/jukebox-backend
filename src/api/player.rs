@@ -1,10 +1,10 @@
 use std::{sync::Mutex, time::Duration};
-use actix_ws::{AggregatedMessage, Session};
+use actix_ws::Session;
 use futures_util::StreamExt as _;
 use actix_identity::Identity;
-use actix_web::{ get, Error, post, web::{self, Data, Json, Payload}, HttpRequest, HttpResponse, Responder };
+use actix_web::{ get, Error, post, web::{self, Data, Json}, HttpRequest, HttpResponse, Responder };
 
-use crate::{api::player, db_handlers::{analytics::log_playback, music::{get_music_by_id, to_rich_music}}, models::{player::{MoveMusicInQueueRequest, PlayerState, RichPlayerState, SeekRequest, VolumeChangeRequest}, Id, Index}, player::Player, DbPool};
+use crate::{db_handlers::{analytics::log_playback, music::{get_music_by_id, to_rich_music}}, models::{player::{MoveMusicInQueueRequest, RichPlayerState, SeekRequest, VolumeChangeRequest}, Id, Index}, player::Player, DbPool};
 
 #[utoipa::path(
     request_body = Id,

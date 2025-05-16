@@ -6,17 +6,14 @@ use std::io::{self, Cursor, Read};
 use std::path::Path;
 use crate::db_handlers::album::get_album_by_title;
 use crate::db_handlers::artist::get_artist_by_name;
-use crate::models::fetcher::{ExternalIds, FetcherAlbum, FetcherArtist, FetcherMusic, FetcherSearchResult};
+use crate::models::fetcher::{ExternalIds, FetcherAlbum, FetcherArtist, FetcherMusic};
 use crate::models::music::{Music, NewMusic};
 use crate::models::album::NewAlbum;
 use crate::models::artist::NewArtist;
-use crate::schema::musics::duration;
 use crate::DbConnection;
-use diesel::expression::is_aggregate::No;
 use diesel::result::Error;
 use serde_json::json;
 use crate::models::errors::SearchError;
-use rust_fuzzy_search::fuzzy_compare;
 
 pub trait Fetcher {
     async fn search_musics(&self, query: String) -> Vec<FetcherMusic>;

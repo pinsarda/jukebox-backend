@@ -4,13 +4,10 @@ use diesel::result::Error;
 use crate::db_handlers::music::get_music_by_id;
 use crate::db_handlers::music::get_playlist_musics;
 use crate::models::playlist::InsertablePlaylist;
-use crate::models::playlist::NewPlaylist;
 use crate::models::playlist::{ Playlist, RichPlaylist };
 use crate::DbConnection;
 use crate::db_handlers::user::get_user_by_id;
-use crate::db_handlers::artist::get_artists_by_ids;
 
-use super::music;
 
 
 pub fn get_playlist_by_id(conn: &mut DbConnection, playlist_id: i32) -> Result<Playlist, Error> {

@@ -1,4 +1,3 @@
-use crate::{fetcher::{ytmusic::YtMusicFetcher, Fetcher}, models::fetcher::{ExternalIds, FetcherArtist, FetcherMusic}};
 
 fn setup() {
     dotenvy::dotenv().ok();

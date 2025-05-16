@@ -1,9 +1,4 @@
-use actix_web::http::Error;
-use diesel::expression::is_aggregate::No;
 use ytmapi_rs::{auth::BrowserToken, common::YoutubeID, parse::ParsedSongArtist, YtMusic};
-use std::fs::{self, File};
-use std::io::{self, Cursor, Read};
-use std::path::Path;
 
 use crate::fetcher::Fetcher;
 use crate::models::artist::NewArtist;

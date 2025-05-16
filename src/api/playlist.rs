@@ -2,7 +2,7 @@ use std::time::SystemTime;
 
 use actix_identity::Identity;
 use actix_web::{ get, post, web::{Data, Json, Query}, Error, HttpResponse, Responder, Result };
-use crate::{ db_handlers::{album::{get_album_by_id, to_rich_album}, playlist::{get_playlist_by_id, to_rich_playlist}}, models::{album::{Album, NewAlbum, RichAlbum}, playlist::{InsertablePlaylist, MusicAddRequest, NewPlaylist, Playlist, RichPlaylist}}};
+use crate::{ db_handlers::playlist::{get_playlist_by_id, to_rich_playlist}, models::playlist::{InsertablePlaylist, MusicAddRequest, NewPlaylist, Playlist, RichPlaylist}};
 use crate::DbPool;
 use crate::models::Id;
 

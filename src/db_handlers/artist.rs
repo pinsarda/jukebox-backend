@@ -1,9 +1,6 @@
-use diesel::dsl::any;
-use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::prelude::*;
 use diesel::result::Error;
-use crate::api::user;
 use crate::db_handlers::album::to_rich_album;
 use crate::models::album::Album;
 use diesel::sql_query;

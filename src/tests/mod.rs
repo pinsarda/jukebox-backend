@@ -1,6 +1,6 @@
-use crate::{api::music, db_handlers::{album::add_album, artist::add_artist, music::add_music, user::create_user}, models::{album::NewAlbum, artist::NewArtist, music::NewMusic, user::NewUser}, DbBackend, DbConnection};
+use crate::{db_handlers::{album::add_album, artist::add_artist, music::add_music, user::create_user}, models::{album::NewAlbum, artist::NewArtist, music::NewMusic, user::NewUser}, DbConnection};
 use diesel::prelude::*;
-use std::{error::Error, result};
+use std::error::Error;
 
 mod fetcher;
 mod db_handlers;

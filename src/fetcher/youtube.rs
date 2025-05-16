@@ -1,9 +1,7 @@
-use serde_json::Number;
 use url::Url;
 use ytmapi_rs::{auth::BrowserToken, common::YoutubeID, parse::ParsedSongArtist, YtMusic};
 use iso8601_duration::Duration;
 
-use crate::api::search::search;
 use crate::fetcher::Fetcher;
 use crate::models::errors::SearchError;
 use crate::models::fetcher::ExternalIds;
@@ -61,7 +59,7 @@ impl Fetcher for YoutubeFetcher {
         // If we reached youtube api quota
         // Error should be handled properly
         if !response["error"].is_null() {
-            if (!response["error"]["code"].is_null()) {
+            if !response["error"]["code"].is_null() {
                 match response["error"]["code"].as_i64() {
                     Some(403) => print!("Warning : reached Youtube API quota limit"),
                     _ => print!("Warning : unknown error with Youtube API")
@@ -73,7 +71,7 @@ impl Fetcher for YoutubeFetcher {
         let search_results = response["items"].as_array().unwrap();
 
         let video_ids = search_results.iter().filter_map(|search_result|
-            if (search_result["id"]["kind"] == "youtube#video") {
+            if search_result["id"]["kind"] == "youtube#video" {
                 Some(search_result["id"]["videoId"].as_str().unwrap().to_string())
             } else {
                 None

@@ -170,7 +170,7 @@ async fn main() -> std::io::Result<()> {
                 let mut info = Info::default();
                 info.title = "Jukebox".to_string();
                 info.description = Some("An open jukebox to control music from a local network".to_string());
-                info.version = "0.3".to_string();
+                info.version = "0.1".to_string();
 
                 let mut license = License::default();
                 license.name = "GNU General Public License v3.0 or later".to_string();
